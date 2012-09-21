@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>dk.nsi.stamdata4</groupId>
+		<artifactId>sdm-parent</artifactId>
+		<version>4.3</version>
+	</parent>
+
+	<artifactId>ydelseimporter</artifactId>
+	<packaging>war</packaging>
+	<version>4.0-SNAPSHOT</version>
+
+    <scm>
+        <url>scm:git:git@github.com:trifork/sdm4-ydelseimporter</url>
+        <connection>scm:git:git@github.com:trifork/sdm4-vitaminimporter.git</connection>
+        <developerConnection>scm:git:git@github.com:trifork/sdm4-vitaminimporter.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://jira.trifork.com/</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>https://ci02.trifork.com:8443/view/SDM4/job/SDM4-vitaminimporter/</url>
+    </ciManagement>
+
+    <prerequisites>
+        <maven>3.0.0</maven>
+    </prerequisites>
+
+    <distributionManagement>
+        <repository>
+            <id>Trifork-Nexus-Release-Repository</id>
+            <name>Trifork Nexus Release Repository</name>
+            <url>https://nexus.trifork.com/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>Trifork-Nexus-Public-Repository</id>
+            <name>Trifork Nexus Public Repository</name>
+            <url>https://nexus.trifork.com/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Trifork-Nexus-Public-Repository</id>
+            <name>Trifork Nexus Public Repository</name>
+            <url>https://nexus.trifork.com/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>dk.nsi.stamdata4</groupId>
+			<artifactId>sdm-core</artifactId>
+			<version>4.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dk.nsi.stamdata4</groupId>
+            <artifactId>testutils</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+
+
+
+
+                <executions>
+                    <execution>
+                        <id>clear-db</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>vagrant</executable>
+                            <arguments>
+                                <argument>ssh</argument>
+                                <argument>-c</argument>
+                                <argument>mysql -uroot -ppapkasse -e "use sdm_warehouse; truncate vitaminimporterImportStatus; truncate VitaminGrunddata; truncate VitaminFirmadata; truncate VitaminUdgaaedeNavne; truncate VitaminIndholdsstoffer"</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>deploy-data</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>vagrant</executable>
+                            <arguments>
+                                <argument>ssh</argument>
+                                <argument>-c</argument>
+                                <argument>sudo -u jboss cp -R /vagrant/sdm4-${project.artifactId}/target/test-classes/data/vitaminer/ /pack/jboss/domain/data/sdm4/vitaminimporter/</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
