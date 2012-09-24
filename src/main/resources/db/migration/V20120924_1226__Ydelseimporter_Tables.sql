@@ -1,5 +1,5 @@
 CREATE TABLE SSR (
-  pk bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  pk BIGINT(15) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 
     -- cpr numre er base64 af hashede numre
   patientCpr varchar(80) NOT NULL,
