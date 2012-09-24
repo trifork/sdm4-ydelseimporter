@@ -13,8 +13,8 @@
 
     <scm>
         <url>scm:git:git@github.com:trifork/sdm4-ydelseimporter</url>
-        <connection>scm:git:git@github.com:trifork/sdm4-vitaminimporter.git</connection>
-        <developerConnection>scm:git:git@github.com:trifork/sdm4-vitaminimporter.git</developerConnection>
+        <connection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</connection>
+        <developerConnection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</developerConnection>
       <tag>HEAD</tag>
   </scm>
     <issueManagement>
@@ -23,7 +23,7 @@
     </issueManagement>
     <ciManagement>
         <system>Jenkins</system>
-        <url>https://ci02.trifork.com:8443/view/SDM4/job/SDM4-vitaminimporter/</url>
+        <url>https://ci02.trifork.com:8443/view/SDM4/job/SDM4-ydelseimporter/</url>
     </ciManagement>
 
     <prerequisites>
@@ -69,7 +69,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -92,50 +92,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-
-
-
-
-                <executions>
-                    <execution>
-                        <id>clear-db</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>vagrant</executable>
-                            <arguments>
-                                <argument>ssh</argument>
-                                <argument>-c</argument>
-                                <argument>mysql -uroot -ppapkasse -e "use sdm_warehouse; truncate vitaminimporterImportStatus; truncate VitaminGrunddata; truncate VitaminFirmadata; truncate VitaminUdgaaedeNavne; truncate VitaminIndholdsstoffer"</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>deploy-data</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>vagrant</executable>
-                            <arguments>
-                                <argument>ssh</argument>
-                                <argument>-c</argument>
-                                <argument>sudo -u jboss cp -R /vagrant/sdm4-${project.artifactId}/target/test-classes/data/vitaminer/ /pack/jboss/domain/data/sdm4/vitaminimporter/</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
