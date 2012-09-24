@@ -53,7 +53,7 @@ import static org.junit.Assert.*;
 @Transactional
 @ContextConfiguration(classes = {SSRDAOTest.TestConfig.class, TestDbConfiguration.class})
 public class SSRDAOTest {
-    private SSR exampleSSR, sameSSR;
+	private SSR exampleSSR, sameSSR;
 
 	@Autowired
 	RandomDataUtilForTestPurposes dataUtilForTestPurposes;
@@ -74,108 +74,108 @@ public class SSRDAOTest {
 		}
 	}
 
-    @Before
-    public void setup() {
-        exampleSSR = generateSSR();
-        sameSSR = generateSSR();
+	@Before
+	public void setup() {
+		exampleSSR = generateSSR();
+		sameSSR = generateSSR();
 
-        DoctorOrganisationIdentifier randomDoctorIdentifier =
-		        dataUtilForTestPurposes.randomDoctorOrganisationIdentifier();
+		DoctorOrganisationIdentifier randomDoctorIdentifier =
+				dataUtilForTestPurposes.randomDoctorOrganisationIdentifier();
 
-        exampleSSR = exampleSSR.withDoctorOrganisationIdentifier(randomDoctorIdentifier);
-        sameSSR = sameSSR.withDoctorOrganisationIdentifier(randomDoctorIdentifier);
-    }
+		exampleSSR = exampleSSR.withDoctorOrganisationIdentifier(randomDoctorIdentifier);
+		sameSSR = sameSSR.withDoctorOrganisationIdentifier(randomDoctorIdentifier);
+	}
 
-    @Test
-    public void testWriteAndRead() {
-        long pk = dao.insert(exampleSSR);
-        SSR databaseSSR = dao.getUsingPrimaryKey(pk);
+	@Test
+	public void testWriteAndRead() {
+		long pk = dao.insert(exampleSSR);
+		SSR databaseSSR = dao.getUsingPrimaryKey(pk);
 
-        HashedCpr hashedPatientCpr = exampleSSR.getPatientCpr();
-        SSR expectedSSR = SSR.createInstance(hashedPatientCpr, exampleSSR.getDoctorOrganisationIdentifier(),
-                exampleSSR.getTreatmentInterval(), exampleSSR.getExternalReference());
+		HashedCpr hashedPatientCpr = exampleSSR.getPatientCpr();
+		SSR expectedSSR = SSR.createInstance(hashedPatientCpr, exampleSSR.getDoctorOrganisationIdentifier(),
+				exampleSSR.getTreatmentInterval(), exampleSSR.getExternalReference());
 
-        assertEquals(expectedSSR, databaseSSR);
-    }
+		assertEquals(expectedSSR, databaseSSR);
+	}
 
-    @Test
-    public void testQuerySSR() {
-        dao.insert(exampleSSR);
+	@Test
+	public void testQuerySSR() {
+		dao.insert(exampleSSR);
 
-        List<SSR> result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
-        assertEquals(1, result.size());
-        SSR expectedSSR = SSR.createInstance(exampleSSR.getPatientCpr(),
-                exampleSSR.getDoctorOrganisationIdentifier(), exampleSSR.getTreatmentInterval(),
-                exampleSSR.getExternalReference());
-        assertEquals(expectedSSR, result.get(0));
+		List<SSR> result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
+		assertEquals(1, result.size());
+		SSR expectedSSR = SSR.createInstance(exampleSSR.getPatientCpr(),
+				exampleSSR.getDoctorOrganisationIdentifier(), exampleSSR.getTreatmentInterval(),
+				exampleSSR.getExternalReference());
+		assertEquals(expectedSSR, result.get(0));
 
-        // Test that discriminate against cprs
-        sameSSR = sameSSR.withPatientCpr(HashedCpr.buildFromUnhashedString("0000000000"));
-        dao.insert(sameSSR);
-        result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
-        assertEquals(1, result.size());
+		// Test that discriminate against cprs
+		sameSSR = sameSSR.withPatientCpr(HashedCpr.buildFromUnhashedString("0000000000"));
+		dao.insert(sameSSR);
+		result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
+		assertEquals(1, result.size());
 
-        // Test that discriminate against hospital organisation ids
-        sameSSR = sameSSR.withPatientCpr(exampleSSR.getPatientCpr());
-        sameSSR = sameSSR.withDoctorOrganisationIdentifier(DoctorOrganisationIdentifier.newInstance("foo123"));
-        dao.insert(sameSSR);
-        result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
-        assertEquals(1, result.size());
-    }
+		// Test that discriminate against hospital organisation ids
+		sameSSR = sameSSR.withPatientCpr(exampleSSR.getPatientCpr());
+		sameSSR = sameSSR.withDoctorOrganisationIdentifier(DoctorOrganisationIdentifier.newInstance("foo123"));
+		dao.insert(sameSSR);
+		result = dao.query(exampleSSR.getPatientCpr(), exampleSSR.getDoctorOrganisationIdentifier());
+		assertEquals(1, result.size());
+	}
 
-    @Test
-    public void testGetSSRWithNonExistingKey() {
-        try {
-            dao.getUsingPrimaryKey(-10);
-            fail("Should not be able to get SSR with negative key.");
-        } catch (DAOException e) {
-            assertEquals("No SSR with primary key -10", e.getMessage());
-        }
-    }
+	@Test
+	public void testGetSSRWithNonExistingKey() {
+		try {
+			dao.getUsingPrimaryKey(-10);
+			fail("Should not be able to get SSR with negative key.");
+		} catch (DAOException e) {
+			assertEquals("No SSR with primary key -10", e.getMessage());
+		}
+	}
 
-    @Test
-    public void testDeletionWithExternalReferenceId() throws DAOException {
-        long primaryKey = dao.insert(exampleSSR);
-        assertNotNull(dao.getUsingPrimaryKey(primaryKey));
+	@Test
+	public void testDeletionWithExternalReferenceId() throws DAOException {
+		long primaryKey = dao.insert(exampleSSR);
+		assertNotNull(dao.getUsingPrimaryKey(primaryKey));
 
-        dao.deleteByExternalReference(exampleSSR.getExternalReference());
-        try {
-            dao.getUsingPrimaryKey(primaryKey);
-            fail("The ssr record should not be available");
-        } catch (DAOException e) {
-            assertEquals("No SSR with primary key " + primaryKey, e.getMessage());
-        }
-    }
+		dao.deleteByExternalReference(exampleSSR.getExternalReference());
+		try {
+			dao.getUsingPrimaryKey(primaryKey);
+			fail("The ssr record should not be available");
+		} catch (DAOException e) {
+			assertEquals("No SSR with primary key " + primaryKey, e.getMessage());
+		}
+	}
 
-    @Test
-    public void testDeletionWithTwoRecordsWithTheSameExternalReferenceId() throws DAOException {
-        long primaryKey1 = dao.insert(exampleSSR);
-        long primaryKey2 = dao.insert(exampleSSR);
+	@Test
+	public void testDeletionWithTwoRecordsWithTheSameExternalReferenceId() throws DAOException {
+		long primaryKey1 = dao.insert(exampleSSR);
+		long primaryKey2 = dao.insert(exampleSSR);
 
-        assertNotNull(dao.getUsingPrimaryKey(primaryKey1));
-        assertNotNull(dao.getUsingPrimaryKey(primaryKey2));
-        
-        dao.deleteByExternalReference(exampleSSR.getExternalReference());
+		assertNotNull(dao.getUsingPrimaryKey(primaryKey1));
+		assertNotNull(dao.getUsingPrimaryKey(primaryKey2));
 
-        try {
-            dao.getUsingPrimaryKey(primaryKey1);
-            fail("The ssr record should not be available");
-        } catch (DAOException e) {
-            assertEquals("No SSR with primary key " + primaryKey1, e.getMessage());
-        }
+		dao.deleteByExternalReference(exampleSSR.getExternalReference());
 
-        try {
-            dao.getUsingPrimaryKey(primaryKey2);
-            fail("The ssr record should not be available");
-        } catch (DAOException e) {
-            assertEquals("No SSR with primary key " + primaryKey2, e.getMessage());
-        }
-    }
-    
-    public static SSR generateSSR() {
-        Interval admittedInterval = new Interval(new DateTime(2011, 1, 15, 12, 34, 0, 0), new DateTime(2011, 2, 13, 18,
-                59, 0, 0));
-        return SSR.createInstance(HashedCpr.buildFromUnhashedString("1806861234"),
-                DoctorOrganisationIdentifier.newInstance("457153"), admittedInterval, "AnExternalReferenceToSSR");
-    }
+		try {
+			dao.getUsingPrimaryKey(primaryKey1);
+			fail("The ssr record should not be available");
+		} catch (DAOException e) {
+			assertEquals("No SSR with primary key " + primaryKey1, e.getMessage());
+		}
+
+		try {
+			dao.getUsingPrimaryKey(primaryKey2);
+			fail("The ssr record should not be available");
+		} catch (DAOException e) {
+			assertEquals("No SSR with primary key " + primaryKey2, e.getMessage());
+		}
+	}
+
+	public static SSR generateSSR() {
+		Interval admittedInterval = new Interval(new DateTime(2011, 1, 15, 12, 34, 0, 0), new DateTime(2011, 2, 13, 18,
+				59, 0, 0));
+		return SSR.createInstance(HashedCpr.buildFromUnhashedString("1806861234"),
+				DoctorOrganisationIdentifier.newInstance("457153"), admittedInterval, "AnExternalReferenceToSSR");
+	}
 }
