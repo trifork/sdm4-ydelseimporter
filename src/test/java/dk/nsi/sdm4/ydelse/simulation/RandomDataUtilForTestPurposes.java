@@ -26,6 +26,7 @@
  */
 package dk.nsi.sdm4.ydelse.simulation;
 
+import dk.nsi.sdm4.ydelse.common.Constants;
 import dk.nsi.sdm4.ydelse.relation.model.DoctorOrganisationIdentifier;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -52,6 +53,11 @@ public class RandomDataUtilForTestPurposes {
 			result += random.nextInt(10);
 		}
 		return result;
+	}
+
+	public DoctorOrganisationIdentifier randomDoctorOrganisationIdentifier() {
+		return DoctorOrganisationIdentifier
+				.newInstance(randomIntegerSequence(Constants.LENGTH_OF_DOCTOR_ORGANISATION_IDENTIFIER));
 	}
 
 	private DateTime oldestBirthDate = new DateTime(1930, 1, 1, 0, 0, 0, 0);

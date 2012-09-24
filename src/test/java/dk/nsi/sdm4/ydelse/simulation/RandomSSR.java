@@ -44,10 +44,13 @@ public class RandomSSR {
 
     private boolean saveUnhashedCprNumbers = true;
 
-	@Autowired
     RandomDataUtilForTestPurposes testDataUtil;
 
-    public SSR randomSSR() {
+	public RandomSSR(RandomDataUtilForTestPurposes testDataUtil) {
+		this.testDataUtil = testDataUtil;
+	}
+
+	public SSR randomSSR() {
         return build();
     }
 
@@ -80,6 +83,7 @@ public class RandomSSR {
 
     private SSR build() {
         setRandomPatientCpr();
+        setRandomDoctorOrganisationIdentifier();
         setRandomTreatmentTime();
         setRandomExternalReference();
 
@@ -95,6 +99,10 @@ public class RandomSSR {
 
     private void setRandomPatientCpr() {
         patientCpr = testDataUtil.randomCpr();
+    }
+
+    private void setRandomDoctorOrganisationIdentifier() {
+        doctorOrganisationIdentifier = testDataUtil.randomDoctorOrganisationIdentifier();
     }
 
     private void setRandomTreatmentTime() {

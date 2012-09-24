@@ -26,11 +26,13 @@
  */
 package dk.nsi.sdm4.ydelse.integrationtest;
 
+import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import dk.nsi.sdm4.ydelse.common.exception.DAOException;
 import dk.nsi.sdm4.ydelse.dao.SSRTestPurposeDAO;
 import dk.nsi.sdm4.ydelse.dao.impl.SSRTestPurposeDAOImpl;
 import dk.nsi.sdm4.ydelse.parser.SsrAction;
 import dk.nsi.sdm4.ydelse.relation.model.SSR;
+import dk.nsi.sdm4.ydelse.simulation.RandomDataUtilForTestPurposes;
 import dk.nsi.sdm4.ydelse.simulation.RandomSSR;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +42,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -50,7 +51,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = {SsrActionTest.TestConfig.class, TestDbConfiguration.class})
 public class SsrActionTest {
 	@Autowired
     private SSRTestPurposeDAO dao;
@@ -67,9 +68,14 @@ public class SsrActionTest {
 
 		@Bean
 		public RandomSSR randomSSR() {
-			RandomSSR randomSSR = new RandomSSR();
+			RandomSSR randomSSR = new RandomSSR(dataUtil());
 			randomSSR.setSeed(42);
 			return randomSSR;
+		}
+
+		@Bean
+		public RandomDataUtilForTestPurposes dataUtil() {
+			return new RandomDataUtilForTestPurposes();
 		}
 	}
 
@@ -104,8 +110,6 @@ public class SsrActionTest {
 
     @Test
     public void insertionToStringContainsInsertionKeyword() {
-        RandomSSR randomSSR = new RandomSSR();
-        randomSSR.setSeed(42);
         SSR ssrForInsertion = randomSSR.randomSSR();
 
         SsrAction ssrAction = SsrAction.createInsertion(ssrForInsertion);
@@ -115,8 +119,6 @@ public class SsrActionTest {
 
     @Test
     public void insertionToStringContainsSsrToString() {
-        RandomSSR randomSSR = new RandomSSR();
-        randomSSR.setSeed(42);
         SSR ssrForInsertion = randomSSR.randomSSR();
 
         SsrAction ssrAction = SsrAction.createInsertion(ssrForInsertion);
