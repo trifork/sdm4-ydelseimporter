@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>dk.nsi.stamdata4</groupId>
 		<artifactId>sdm-parent</artifactId>
-		<version>4.3</version>
+		<version>4.5-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>ydelseimporter</artifactId>
@@ -16,7 +16,7 @@
         <connection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</connection>
         <developerConnection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</developerConnection>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
     <issueManagement>
         <system>JIRA</system>
         <url>https://jira.trifork.com/</url>
