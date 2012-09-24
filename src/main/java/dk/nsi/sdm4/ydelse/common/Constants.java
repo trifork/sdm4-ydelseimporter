@@ -26,9 +26,6 @@
  */
 package dk.nsi.sdm4.ydelse.common;
 
-public final class Constants {
+public interface Constants {
 	public static final int LENGTH_OF_DOCTOR_ORGANISATION_IDENTIFIER = 6;
-
-	private Constants() {
-	}
 }
