@@ -28,35 +28,69 @@ package dk.nsi.sdm4.ydelse.parser;
 
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.testutils.TestDbConfiguration;
+import dk.nsi.sdm4.ydelse.common.exception.DAOException;
 import dk.nsi.sdm4.ydelse.config.YdelseimporterApplicationConfig;
+import dk.nsi.sdm4.ydelse.dao.SSRTestPurposeDAO;
+import dk.nsi.sdm4.ydelse.dao.impl.SSRTestPurposeDAOImpl;
+import dk.nsi.sdm4.ydelse.relation.model.SSR;
+import dk.nsi.sdm4.ydelse.simulation.RandomDataUtilForTestPurposes;
+import dk.nsi.sdm4.ydelse.simulation.RandomSSR;
+import dk.nsi.sdm4.ydelse.testutil.GenerateTestRegisterDumps;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
 @ContextConfiguration(classes = {YdelseparserTest.TestConfig.class, YdelseimporterApplicationConfig.class, TestDbConfiguration.class})
 public class YdelseparserTest {
+	@Autowired
+	GenerateTestRegisterDumps generator;
+
+	@Autowired
+	SSRTestPurposeDAO testDao;
+
+	@Autowired
+	RandomSSR randomSSR;
+
 	@Configuration
 	static class TestConfig {
-/*
 		@Bean
 		public SSRTestPurposeDAO dao() {
 			return new SSRTestPurposeDAOImpl();
 		}
-*/
+
+		@Bean
+		public GenerateTestRegisterDumps generator() {
+			return new GenerateTestRegisterDumps();
+		}
+
+		@Bean
+		public RandomSSR randomSSR() {
+			RandomSSR randomSSR = new RandomSSR(dataUtil());
+			randomSSR.setSeed(1337);
+			return randomSSR;
+		}
+
+		@Bean
+		public RandomDataUtilForTestPurposes dataUtil() {
+			return new RandomDataUtilForTestPurposes();
+		}
 	}
 
 	@Autowired
@@ -95,45 +129,20 @@ public class YdelseparserTest {
 		}
 	}
 
-/*
     @Test
     public void testParsing() throws IOException, DAOException {
-        purgeDB();
+	    File datasetDir = tmpDir.newFolder();
+	    int numberOfRecords = 10;
+	    Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
 
-        String dirname = "stubbedftp";
-        String filename = dirname + "/ssr_foo_bar.csv";
+	    parser.process(datasetDir);
 
-	    File file = new File(filename);
-	    FileUtils.deleteQuietly(file);
-		assertFalse(file.exists());
-
-        int n = 10;
-        GenerateTestRegisterDumps.generateDumps(n);
-        DirectoryWatcher directoryWatcher = new DirectoryWatcher(new File(dirname), new File("unexistingErrorLocation"));
-        RegisterImportJob job = new RegisterImportJob(directoryWatcher);
-        assertTrue(HandlerTestUtils.fileExists(filename));
-
-        job.run();
-        assertTrue(HandlerTestUtils.fileExists(filename));
-
-        job.run();
-        assertFalse(HandlerTestUtils.fileExists(filename));
-
-        List<SSR> seen = null;
-        seen = DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
-
-        Set<SSR> seenAsSet = new HashSet<SSR>(seen);
-
-        RandomSSR randomSSR = new RandomSSR();
-        randomSSR.setSeed(1337);
-        Set<SSR> expected = new HashSet<SSR>();
-        for (SSR ssr : randomSSR.randomSSRs(n)) {
-            expected.add(ssr);
-        }
+	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
         assertEquals(expected.size(), seenAsSet.size());
         assertEquals(expected, seenAsSet);
     }
+/*
 
     @Test
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {

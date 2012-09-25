@@ -31,7 +31,6 @@ import dk.nsi.sdm4.ydelse.relation.model.HashedCpr;
 import dk.nsi.sdm4.ydelse.relation.model.SSR;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,14 +55,6 @@ public class RandomSSR {
 
     public void setSeed(long seed) {
         testDataUtil.setSeed(seed);
-    }
-
-    public void saveUnhashedCprNumbers() {
-        saveUnhashedCprNumbers = true;
-    }
-
-    public void doNotSaveUnhashedCprNumbers() {
-        saveUnhashedCprNumbers = false;
     }
 
     public List<SSR> randomSSRs(int n) {
