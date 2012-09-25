@@ -34,7 +34,7 @@ public class SsrAction {
 
     enum ActionType {
         INSERTION, DELETION, NOOP
-    };
+    }
 
     ActionType actionType;
     SSR ssrForInsertion;
@@ -83,6 +83,14 @@ public class SsrAction {
 
     @Override
     public String toString() {
-        return "SsrAction(insertion)[" + ssrForInsertion.toString() + "]";
+	    if (actionType == ActionType.INSERTION) {
+            return "SsrAction(insertion)[" + ssrForInsertion.toString() + "]";
+	    } else if (actionType == ActionType.DELETION) {
+		    return "SsrAction(deletion)[" + externalReferenceForDeletion + "]";
+	    } else if (actionType == ActionType.NOOP) {
+		    return "SsrAction(noop)";
+	    } else {
+		    return super.toString();
+	    }
     }
 }

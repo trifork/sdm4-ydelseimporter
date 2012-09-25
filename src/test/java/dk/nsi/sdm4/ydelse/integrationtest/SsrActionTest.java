@@ -47,7 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
@@ -125,4 +127,19 @@ public class SsrActionTest {
 
         assertTrue(ssrAction.toString().contains(ssrForInsertion.toString()));
     }
+
+	@Test
+	public void noopToStringSaysNoop() {
+		SsrAction noopSsr = SsrAction.createNOOP();
+		assertThat(noopSsr.toString(), containsString("noop"));
+	}
+
+	@Test
+	public void deletionToStringContainsExternalRef() {
+		String extRef = "AnExternalReferenceToSSR";
+		SsrAction noopSsr = SsrAction.createDeletion(extRef);
+		assertThat(noopSsr.toString(), containsString("deletion"));
+		assertThat(noopSsr.toString(), containsString(extRef));
+	}
+
 }
