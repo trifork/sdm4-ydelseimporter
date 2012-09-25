@@ -48,7 +48,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -116,7 +115,7 @@ public class SsrActionTest {
 
         SsrAction ssrAction = SsrAction.createInsertion(ssrForInsertion);
 
-        assertTrue(ssrAction.toString().toLowerCase().contains(("insertion")));
+        assertThat(ssrAction.toString().toLowerCase(), containsString("insertion"));
     }
 
     @Test
@@ -125,20 +124,20 @@ public class SsrActionTest {
 
         SsrAction ssrAction = SsrAction.createInsertion(ssrForInsertion);
 
-        assertTrue(ssrAction.toString().contains(ssrForInsertion.toString()));
+        assertThat(ssrAction.toString(), containsString(ssrForInsertion.toString()));
     }
 
 	@Test
 	public void noopToStringSaysNoop() {
 		SsrAction noopSsr = SsrAction.createNOOP();
-		assertThat(noopSsr.toString(), containsString("noop"));
+		assertThat(noopSsr.toString().toLowerCase(), containsString("noop"));
 	}
 
 	@Test
 	public void deletionToStringContainsExternalRef() {
 		String extRef = "AnExternalReferenceToSSR";
 		SsrAction noopSsr = SsrAction.createDeletion(extRef);
-		assertThat(noopSsr.toString(), containsString("deletion"));
+		assertThat(noopSsr.toString().toLowerCase(), containsString("deletion"));
 		assertThat(noopSsr.toString(), containsString(extRef));
 	}
 
