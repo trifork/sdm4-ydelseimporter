@@ -30,8 +30,17 @@ import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.relation.model.DoctorOrganisationIdentifier;
 import dk.nsi.sdm4.ydelse.relation.model.HashedCpr;
 import dk.nsi.sdm4.ydelse.relation.model.SSR;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -85,4 +94,120 @@ public class SSRLineParserTest {
         assertEquals(SsrAction.ActionType.DELETION, ssrAction.actionType);
         assertEquals("AnExternalReferenceToSSR", ssrAction.externalReferenceForDeletion);
     }
+
+	public static class SSRFileHandlerTest {
+
+	    @Test
+	    public void testParsing() throws IOException, DAOException {
+	        purgeDB();
+
+	        String dirname = "stubbedftp";
+	        String filename = dirname + "/ssr_foo_bar.csv";
+
+	        HandlerTestUtils.removeFile(filename);
+	        assertFalse(HandlerTestUtils.fileExists(filename));
+
+	        int n = 10;
+	        GenerateTestRegisterDumps.generateDumps(n);
+	        DirectoryWatcher directoryWatcher = new DirectoryWatcher(new File(dirname), new File("unexistingErrorLocation"));
+	        RegisterImportJob job = new RegisterImportJob(directoryWatcher);
+	        assertTrue(HandlerTestUtils.fileExists(filename));
+
+	        job.run();
+	        assertTrue(HandlerTestUtils.fileExists(filename));
+
+	        job.run();
+	        assertFalse(HandlerTestUtils.fileExists(filename));
+
+	        List<SSR> seen = null;
+	        seen = DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
+
+	        Set<SSR> seenAsSet = new HashSet<SSR>(seen);
+
+	        RandomSSR randomSSR = new RandomSSR();
+	        randomSSR.setSeed(1337);
+	        Set<SSR> expected = new HashSet<SSR>();
+	        for (SSR ssr : randomSSR.randomSSRs(n)) {
+	            expected.add(ssr);
+	        }
+
+	        assertEquals(expected.size(), seenAsSet.size());
+	        assertEquals(expected, seenAsSet);
+	    }
+
+	    @Test
+	    public void testParsingOfFileWithUpdate() throws IOException, DAOException {
+	        purgeDB();
+
+	        String dirname = "stubbedftp";
+	        String filename = dirname + "/ssr_date.csv";
+
+	        URL url = this.getClass().getResource("SSRFileHandlerTest-TestFile.csv");
+	        FileUtils.copyURLToFile(url, new File(filename));
+
+	        DirectoryWatcher directoryWatcher = new DirectoryWatcher(new File(dirname), new File("unexistingErrorLocation"));
+	        RegisterImportJob job = new RegisterImportJob(directoryWatcher);
+	        assertTrue(HandlerTestUtils.fileExists(filename));
+
+	        job.run();
+	        assertTrue(HandlerTestUtils.fileExists(filename));
+
+	        job.run();
+	        assertFalse(HandlerTestUtils.fileExists(filename));
+
+	        List<SSR> seen = null;
+	        seen = DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
+
+	        assertEquals(2, seen.size());
+
+	        Set<SSR> seenAsSet = new HashSet<SSR>(seen);
+
+	        Set<SSR> expected = new HashSet<SSR>();
+	        HashedCpr hashedPatientCpr = HashedCpr.buildFromHashedString("1234567890123456789012345678901234567890");
+	        DoctorOrganisationIdentifier doctorOrganisationIdentifier = DoctorOrganisationIdentifier.newInstance("034002");
+	        String externalReference = "AnExternalReferenceToSSR";
+
+	        DateTime firstDate = new DateTime(2011, 2, 17, 0, 0, 0, 0);
+	        DateTime secondDate = new DateTime(2011, 2, 20, 0, 0, 0, 0);
+
+	        Interval firstInterval = new Interval(firstDate, firstDate.plusDays(1));
+	        Interval secondInterval = new Interval(secondDate, secondDate.plusDays(1));
+
+	        expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, firstInterval,
+	                externalReference));
+	        expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, secondInterval,
+	                externalReference));
+
+	        assertEquals(expected.size(), seenAsSet.size());
+	        assertEquals(expected, seenAsSet);
+	    }
+
+	    @Test
+	    public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException
+	    {
+	        String exampleFileFromRefhostDir = "src/test/resources//";
+	        String exampleCsvFile = exampleFileFromRefhostDir + "Ydelsesudtraek.csv";
+
+	        purgeDB();
+	        SSRFileHandler ssrFileHandler = new SSRFileHandler();
+	        List<SSR> seen = null;
+	        ssrFileHandler.handleFile(new File(exampleCsvFile));
+	        seen = getAllSsr();
+
+	        assertEquals(2, seen.size());
+	    }
+
+	    private void purgeDB() {
+	        try {
+	            DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).purge();
+	        } catch (DAOException e) {
+	            e.printStackTrace();
+	            fail();
+	        }
+	    }
+
+	    private List<SSR> getAllSsr() throws DAOException {
+	        return DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
+	    }
+	}
 }

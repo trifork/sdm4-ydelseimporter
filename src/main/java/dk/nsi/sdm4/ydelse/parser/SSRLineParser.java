@@ -40,121 +40,115 @@ import java.text.SimpleDateFormat;
 public class SSRLineParser {
 	private static final SplunkLogger log = new SplunkLogger(SSRLineParser.class);
 
-    private static final int EXPECTED_NUMBER_OF_FIELDS = 5;
-    private static final String SEPARATOR = ",";
-    private String[] fields;
+	private static final int EXPECTED_NUMBER_OF_FIELDS = 5;
+	private static final String SEPARATOR = ",";
+	private String[] fields;
 
-    public static SsrAction parseLine(String line) throws ParserException {
-        SSRLineParser parser = new SSRLineParser(line);
-        return parser.parse();
-    }
+	public static SsrAction parseLine(String line) throws ParserException {
+		SSRLineParser parser = new SSRLineParser(line);
+		return parser.parse();
+	}
 
-    private SSRLineParser(String line) throws ParserException {
-        this.fields = getTokens(line, SEPARATOR, EXPECTED_NUMBER_OF_FIELDS);
-        
-        // strip whitespaces - the data from CSC can contain a varying amount of whitespaces
-        for (int i = 0; i < EXPECTED_NUMBER_OF_FIELDS; i++) {
-        	this.fields[i] = this.fields[i].trim();
-        }
-    }
+	private SSRLineParser(String line) throws ParserException {
+		this.fields = getTokens(line, SEPARATOR, EXPECTED_NUMBER_OF_FIELDS);
 
-    private DoctorOrganisationIdentifier doctorOrganisationId;
-    private String patientCpr;
-    private Interval admittedInterval;
-    private String ssrReference;
+		// strip whitespaces - the data from CSC can contain a varying amount of whitespaces
+		for (int i = 0; i < EXPECTED_NUMBER_OF_FIELDS; i++) {
+			this.fields[i] = this.fields[i].trim();
+		}
+	}
 
-    private SsrAction parse() throws ParserException {
-        if (everythingButExternalReferenceIsBlank()) {
-            parseSsrReference();
-            return SsrAction.createDeletion(ssrReference);
-        }
-        else if (!parseTreatmentInterval()) { // unfortunately CSC does not always add the dates, it has been decided (NSPSUPPORT-96) that we will ignore the fields with no date
-        	return SsrAction.createNOOP();
-        }
-        else {
-            parseDoctorOrganisationId();
-            parsePatientCpr();
-            parseSsrReference();
+	private DoctorOrganisationIdentifier doctorOrganisationId;
+	private String patientCpr;
+	private Interval admittedInterval;
+	private String ssrReference;
 
-            SSR ssr = SSR.createInstance(HashedCpr.buildFromHashedString(patientCpr), doctorOrganisationId,
-                    admittedInterval, ssrReference);
-            return SsrAction.createInsertion(ssr);
-        }
-    }
+	private SsrAction parse() throws ParserException {
+		if (everythingButExternalReferenceIsBlank()) {
+			parseSsrReference();
+			return SsrAction.createDeletion(ssrReference);
+		} else if (!parseTreatmentInterval()) { // unfortunately CSC does not always add the dates, it has been decided (NSPSUPPORT-96) that we will ignore the fields with no date
+			return SsrAction.createNOOP();
+		} else {
+			parseDoctorOrganisationId();
+			parsePatientCpr();
+			parseSsrReference();
 
-    private static final int DOCTOR_ORG_ID_FIELD = 0;
-    private static final int PATIENT_CPR_FIELD = 1;
-    private static final int TREATMENT_START_TIME_FIELD = 2;
-    private static final int TREATMENT_END_TIME_FIELD = 3;
-    private static final int SSR_REFERENCE_FIELD = 4;
+			SSR ssr = SSR.createInstance(HashedCpr.buildFromHashedString(patientCpr), doctorOrganisationId,
+					admittedInterval, ssrReference);
+			return SsrAction.createInsertion(ssr);
+		}
+	}
 
-    private boolean fieldIsMissing(int i) {
-        return fields[i].trim().equals("");
-    }
+	private static final int DOCTOR_ORG_ID_FIELD = 0;
+	private static final int PATIENT_CPR_FIELD = 1;
+	private static final int TREATMENT_START_TIME_FIELD = 2;
+	private static final int TREATMENT_END_TIME_FIELD = 3;
+	private static final int SSR_REFERENCE_FIELD = 4;
 
-    private boolean everythingButExternalReferenceIsBlank() {
-        return fieldIsMissing(DOCTOR_ORG_ID_FIELD) && fieldIsMissing(PATIENT_CPR_FIELD)
-                && fieldIsMissing(TREATMENT_START_TIME_FIELD) && fieldIsMissing(TREATMENT_END_TIME_FIELD)
-                && !fieldIsMissing(SSR_REFERENCE_FIELD);
-    }
+	private boolean fieldIsMissing(int i) {
+		return fields[i].trim().equals("");
+	}
 
-    private void parseDoctorOrganisationId() throws ParserException {
-        if (fieldIsMissing(DOCTOR_ORG_ID_FIELD)) {
-            throw new ParserException("Doctor organisation id (ydernummer) must be present");
-        } else {
-            try {
-                doctorOrganisationId = DoctorOrganisationIdentifier.newInstance(fields[DOCTOR_ORG_ID_FIELD]);
-            } catch (IllegalArgumentException e) {
-                throw new ParserException(e.getMessage(), e);
-            }
-        }
-    }
+	private boolean everythingButExternalReferenceIsBlank() {
+		return fieldIsMissing(DOCTOR_ORG_ID_FIELD) && fieldIsMissing(PATIENT_CPR_FIELD)
+				&& fieldIsMissing(TREATMENT_START_TIME_FIELD) && fieldIsMissing(TREATMENT_END_TIME_FIELD)
+				&& !fieldIsMissing(SSR_REFERENCE_FIELD);
+	}
 
-    private void parsePatientCpr() throws ParserException {
-        if (fieldIsMissing(PATIENT_CPR_FIELD)) {
-            throw new ParserException("Patient cpr must be present");
-        } else {
-            patientCpr = fields[PATIENT_CPR_FIELD];
-        }
-    }
+	private void parseDoctorOrganisationId() throws ParserException {
+		if (fieldIsMissing(DOCTOR_ORG_ID_FIELD)) {
+			throw new ParserException("Doctor organisation id (ydernummer) must be present");
+		} else {
+			try {
+				doctorOrganisationId = DoctorOrganisationIdentifier.newInstance(fields[DOCTOR_ORG_ID_FIELD]);
+			} catch (IllegalArgumentException e) {
+				throw new ParserException(e.getMessage(), e);
+			}
+		}
+	}
 
-    private boolean parseTreatmentInterval() throws ParserException {
-    	try {
-    		admittedInterval = parseIntervalFromTwoIdenticalDaysAsSpecifiedBySsr(fields, TREATMENT_START_TIME_FIELD,
-				    TREATMENT_END_TIME_FIELD);
-    	}
-    	catch (ParserException ex) {
-    		log.error("Failed to parse line with reference " + fields[SSR_REFERENCE_FIELD] + ". Fault: " + ex.getMessage());
-    		return false;
-    	}
-    	
-    	return true;
-    }
+	private void parsePatientCpr() throws ParserException {
+		if (fieldIsMissing(PATIENT_CPR_FIELD)) {
+			throw new ParserException("Patient cpr must be present");
+		} else {
+			patientCpr = fields[PATIENT_CPR_FIELD];
+		}
+	}
 
-    private void parseSsrReference() throws ParserException {
-        if (fieldIsMissing(SSR_REFERENCE_FIELD)) {
-            throw new ParserException("Reference to original ssr record must be present");
-        } else {
-            ssrReference = fields[SSR_REFERENCE_FIELD];
-            
-            // NSPSUPPORT-23 Data from SSR was observed to be of length 16, not 24 as previously specified.
-            // We have decided to use space padding to overcome this.
-            if (ssrReference.length() < SSR.REFERENCE_LENGTH)
-            {
-                ssrReference = ssrReference + spacePadding(SSR.REFERENCE_LENGTH - ssrReference.length());
-            }
-        }
-    }
-    
-    private String spacePadding(int n)
-    {
-        String padding = "";
-        for (int i = 0; i < n; i++)
-        {
-            padding += " ";
-        }
-        return padding;
-    }
+	private boolean parseTreatmentInterval() throws ParserException {
+		try {
+			admittedInterval = parseIntervalFromTwoIdenticalDaysAsSpecifiedBySsr(fields, TREATMENT_START_TIME_FIELD,
+					TREATMENT_END_TIME_FIELD);
+		} catch (ParserException ex) {
+			log.error("Failed to parse line with reference " + fields[SSR_REFERENCE_FIELD] + ". Fault: " + ex.getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	private void parseSsrReference() throws ParserException {
+		if (fieldIsMissing(SSR_REFERENCE_FIELD)) {
+			throw new ParserException("Reference to original ssr record must be present");
+		} else {
+			ssrReference = fields[SSR_REFERENCE_FIELD];
+
+			// NSPSUPPORT-23 Data from SSR was observed to be of length 16, not 24 as previously specified.
+			// We have decided to use space padding to overcome this.
+			if (ssrReference.length() < SSR.REFERENCE_LENGTH) {
+				ssrReference = ssrReference + spacePadding(SSR.REFERENCE_LENGTH - ssrReference.length());
+			}
+		}
+	}
+
+	private String spacePadding(int n) {
+		String padding = "";
+		for (int i = 0; i < n; i++) {
+			padding += " ";
+		}
+		return padding;
+	}
 
 	private String[] getTokens(String line, String separator, int expectedNumberOfFields) throws ParserException {
 		if (line.contains(System.getProperty("line.separator"))) {
@@ -179,7 +173,7 @@ public class SSRLineParser {
 	}
 
 	public Interval parseIntervalFromTwoIdenticalDaysAsSpecifiedBySsr(String[] fields,
-	                                                                         int treatmentStartTimeField, int treatmentEndTimeField) throws ParserException {
+	                                                                  int treatmentStartTimeField, int treatmentEndTimeField) throws ParserException {
 		if (fieldIsMissing(fields, treatmentStartTimeField)) {
 			throw new ParserException("Treatment start time must be present");
 		}
@@ -212,6 +206,7 @@ public class SSRLineParser {
 	}
 
 	private final static SimpleDateFormat ssrFormat = new SimpleDateFormat("yyyyMMdd");
+
 	static {
 		ssrFormat.setLenient(false);
 	}
