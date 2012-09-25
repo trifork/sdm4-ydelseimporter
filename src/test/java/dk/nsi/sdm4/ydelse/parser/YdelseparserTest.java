@@ -29,6 +29,7 @@ package dk.nsi.sdm4.ydelse.parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import dk.nsi.sdm4.ydelse.common.exception.DAOException;
+import dk.nsi.sdm4.ydelse.common.exception.RegisterImportException;
 import dk.nsi.sdm4.ydelse.config.YdelseimporterApplicationConfig;
 import dk.nsi.sdm4.ydelse.dao.SSRTestPurposeDAO;
 import dk.nsi.sdm4.ydelse.dao.impl.SSRTestPurposeDAOImpl;
@@ -56,6 +57,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -151,9 +153,7 @@ public class YdelseparserTest {
 
     @Test
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {
-        URL url = this.getClass().getResource("YdelseparserTest-TestFile.csv");
-	    File datasetDir = tmpDir.newFolder();
-	    FileUtils.copyURLToFile(url, new File(datasetDir, "testfile.csv"));
+	    File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
 
 	    parser.process(datasetDir);
 
@@ -180,25 +180,23 @@ public class YdelseparserTest {
         assertEquals(expected.size(), seenAsSet.size());
         assertEquals(expected, seenAsSet);
     }
-/*
-    @Test
-    public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException
-    {
-        String exampleFileFromRefhostDir = "src/test/resources//";
-        String exampleCsvFile = exampleFileFromRefhostDir + "Ydelsesudtraek.csv";
 
-        purgeDB();
-        YdelseParser ydelseParser = new YdelseParser();
-        List<SSR> seen = null;
-        ydelseParser.handleFile(new File(exampleCsvFile));
-        seen = getAllSsr();
+	@Test
+    public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException, IOException {
+	    File datasetDir = makeDatadirWithResource("Ydelsesudtraek.csv");
 
-        assertEquals(2, seen.size());
+	    parser.process(datasetDir);
+
+	    List<SSR> seen = testDao.getAllSSRs();
+
+	    assertEquals(2, seen.size());
     }
 
-    private List<SSR> getAllSsr() throws DAOException {
-        return DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
-    }
-    */
+	private File makeDatadirWithResource(String path) throws IOException {
+		File datasetDir = tmpDir.newFolder();
+		URL url = this.getClass().getResource(path);
+		FileUtils.copyURLToFile(url, new File(datasetDir, "testfile.csv"));
 
+		return datasetDir;
+	}
 }
