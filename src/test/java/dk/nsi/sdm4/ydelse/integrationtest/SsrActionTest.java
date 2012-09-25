@@ -136,9 +136,9 @@ public class SsrActionTest {
 	@Test
 	public void deletionToStringContainsExternalRef() {
 		String extRef = "AnExternalReferenceToSSR";
-		SsrAction noopSsr = SsrAction.createDeletion(extRef);
-		assertThat(noopSsr.toString().toLowerCase(), containsString("deletion"));
-		assertThat(noopSsr.toString(), containsString(extRef));
+		SsrAction deletionSsr = SsrAction.createDeletion(extRef);
+		assertThat(deletionSsr.toString().toLowerCase(), containsString("deletion"));
+		assertThat(deletionSsr.toString(), containsString(extRef));
 	}
 
 }
