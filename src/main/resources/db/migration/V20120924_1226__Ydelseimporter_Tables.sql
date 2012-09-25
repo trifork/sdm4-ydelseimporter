@@ -9,7 +9,7 @@ CREATE TABLE SSR (
   admittedStart datetime NOT NULL,
   admittedEnd datetime NOT NULL,
 
-  externalReference char(24) NOT NULL
+  externalReference varchar(24) NOT NULL
 ) ENGINE=InnoDB COLLATE=utf8_bin;
 
 CREATE INDEX SSR_INDEX USING HASH on SSR(patientCpr, doctorOrganisationIdentifier);
