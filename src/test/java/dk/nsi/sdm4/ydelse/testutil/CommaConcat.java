@@ -28,7 +28,6 @@ package dk.nsi.sdm4.ydelse.testutil;
 
 import dk.nsi.sdm4.ydelse.relation.model.DoctorOrganisationIdentifier;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
