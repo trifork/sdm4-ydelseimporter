@@ -62,9 +62,8 @@ public class YdelseParser implements Parser {
                 ssrAction.execute(dao);
             }
         } catch (Exception e) {
-            throw new ParserException(e.getMessage(), e);
+            throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
         } finally {
-	        IOUtils.closeQuietly(bf);
             if (bf != null) {
                 try {
                     bf.close();
