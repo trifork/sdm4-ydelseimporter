@@ -26,14 +26,11 @@
  */
 package dk.nsi.sdm4.ydelse.config;
 
-import dk.nsi.sdm4.core.parser.Parser;
-import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
 import dk.nsi.sdm4.ydelse.dao.impl.SSRDAOImpl;
+import dk.nsi.sdm4.ydelse.parser.YdelseParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.File;
 
 @Configuration
 public class YdelseimporterApplicationConfig {
@@ -43,17 +40,7 @@ public class YdelseimporterApplicationConfig {
 	}
 
 	@Bean
-    public Parser parser() {
-		return new Parser() {
-			@Override
-			public void process(File file) throws ParserException {
-				throw new UnsupportedOperationException("process");
-			}
-
-			@Override
-			public String getHome() {
-				return "ydelseimporter";
-			}
-		};
+    public YdelseParser parser() {
+		return new YdelseParser();
 	}
 }
