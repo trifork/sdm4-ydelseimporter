@@ -26,12 +26,12 @@
  */
 package dk.nsi.sdm4.ydelse.common.exception;
 
+import dk.nsi.sdm4.core.parser.ParserException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class ExceptionTest {
-
 	@Test
 	public void testDAOException() {
 		final String thrStr = "Throwable test";
@@ -100,13 +100,13 @@ public class ExceptionTest {
 	}
 
 	@Test
-	public void testParsingException() {
+	public void testParserException() {
 		final String thrStr = "Throwable test";
 		final String exStr = "Test";
 		final String ex2Str = "Test2";
 		Exception thr = new Exception(thrStr);
-		ParsingException ex = new ParsingException(exStr);
-		ParsingException ex2 = new ParsingException(ex2Str, thr);
+		ParserException ex = new ParserException(exStr);
+		ParserException ex2 = new ParserException(ex2Str, thr);
 
 		assertEquals(exStr, ex.getMessage());
 		assertEquals(ex2Str, ex2.getMessage());
