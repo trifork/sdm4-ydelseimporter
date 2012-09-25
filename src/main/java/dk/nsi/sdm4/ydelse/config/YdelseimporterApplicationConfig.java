@@ -28,6 +28,8 @@ package dk.nsi.sdm4.ydelse.config;
 
 import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.core.parser.ParserException;
+import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
+import dk.nsi.sdm4.ydelse.dao.impl.SSRDAOImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +37,12 @@ import java.io.File;
 
 @Configuration
 public class YdelseimporterApplicationConfig {
-    @Bean
+	@Bean
+	public SSRWriteDAO writeDao() {
+		return new SSRDAOImpl();
+	}
+
+	@Bean
     public Parser parser() {
 		return new Parser() {
 			@Override

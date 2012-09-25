@@ -47,7 +47,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
-class SSRDAOImpl implements SSRWriteDAO {
+public class SSRDAOImpl implements SSRWriteDAO {
     private static final SplunkLogger log = new SplunkLogger(SSRDAOImpl.class);
 
 	@Autowired

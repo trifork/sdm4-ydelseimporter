@@ -28,6 +28,7 @@ package dk.nsi.sdm4.ydelse.dao.impl;
 
 import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import dk.nsi.sdm4.ydelse.common.exception.DAOException;
+import dk.nsi.sdm4.ydelse.config.YdelseimporterApplicationConfig;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
 import dk.nsi.sdm4.ydelse.relation.model.DoctorOrganisationIdentifier;
 import dk.nsi.sdm4.ydelse.relation.model.HashedCpr;
@@ -51,7 +52,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@ContextConfiguration(classes = {SSRDAOTest.TestConfig.class, TestDbConfiguration.class})
+@ContextConfiguration(classes = {SSRDAOTest.TestConfig.class, YdelseimporterApplicationConfig.class, TestDbConfiguration.class})
 public class SSRDAOTest {
 	private SSR exampleSSR, sameSSR;
 
@@ -63,11 +64,6 @@ public class SSRDAOTest {
 
 	@Configuration
 	static class TestConfig {
-		@Bean
-		public SSRWriteDAO writeDao() {
-			return new SSRDAOImpl();
-		}
-
 		@Bean
 		public RandomDataUtilForTestPurposes dataUtil() {
 			return new RandomDataUtilForTestPurposes();
