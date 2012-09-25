@@ -32,10 +32,15 @@ import dk.nsi.sdm4.ydelse.common.exception.DAOException;
 import dk.nsi.sdm4.ydelse.config.YdelseimporterApplicationConfig;
 import dk.nsi.sdm4.ydelse.dao.SSRTestPurposeDAO;
 import dk.nsi.sdm4.ydelse.dao.impl.SSRTestPurposeDAOImpl;
+import dk.nsi.sdm4.ydelse.relation.model.DoctorOrganisationIdentifier;
+import dk.nsi.sdm4.ydelse.relation.model.HashedCpr;
 import dk.nsi.sdm4.ydelse.relation.model.SSR;
 import dk.nsi.sdm4.ydelse.simulation.RandomDataUtilForTestPurposes;
 import dk.nsi.sdm4.ydelse.simulation.RandomSSR;
 import dk.nsi.sdm4.ydelse.testutil.GenerateTestRegisterDumps;
+import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -49,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -142,34 +148,18 @@ public class YdelseparserTest {
         assertEquals(expected.size(), seenAsSet.size());
         assertEquals(expected, seenAsSet);
     }
-/*
 
     @Test
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {
-        purgeDB();
-
-        String dirname = "stubbedftp";
-        String filename = dirname + "/ssr_date.csv";
-
         URL url = this.getClass().getResource("YdelseparserTest-TestFile.csv");
-        FileUtils.copyURLToFile(url, new File(filename));
+	    File datasetDir = tmpDir.newFolder();
+	    FileUtils.copyURLToFile(url, new File(datasetDir, "testfile.csv"));
 
-        DirectoryWatcher directoryWatcher = new DirectoryWatcher(new File(dirname), new File("unexistingErrorLocation"));
-        RegisterImportJob job = new RegisterImportJob(directoryWatcher);
-        assertTrue(HandlerTestUtils.fileExists(filename));
+	    parser.process(datasetDir);
 
-        job.run();
-        assertTrue(HandlerTestUtils.fileExists(filename));
+	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
-        job.run();
-        assertFalse(HandlerTestUtils.fileExists(filename));
-
-        List<SSR> seen = null;
-        seen = DAOFactoryForTestPurposes.getSSRForTestPurposes(RegisterProvider.DI).getAllSSRs();
-
-        assertEquals(2, seen.size());
-
-        Set<SSR> seenAsSet = new HashSet<SSR>(seen);
+	    assertEquals(2, seenAsSet.size());
 
         Set<SSR> expected = new HashSet<SSR>();
         HashedCpr hashedPatientCpr = HashedCpr.buildFromHashedString("1234567890123456789012345678901234567890");
@@ -190,7 +180,7 @@ public class YdelseparserTest {
         assertEquals(expected.size(), seenAsSet.size());
         assertEquals(expected, seenAsSet);
     }
-
+/*
     @Test
     public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException
     {
