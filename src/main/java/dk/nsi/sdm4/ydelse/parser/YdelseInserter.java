@@ -24,30 +24,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dk.nsi.sdm4.ydelse.config;
+package dk.nsi.sdm4.ydelse.parser;
 
+import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
-import dk.nsi.sdm4.ydelse.dao.impl.SSRDAOImpl;
-import dk.nsi.sdm4.ydelse.parser.YdelseInserter;
-import dk.nsi.sdm4.ydelse.parser.YdelseParser;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Configuration
-public class YdelseimporterApplicationConfig {
-	@Bean
-	public SSRWriteDAO writeDao() {
-		return new SSRDAOImpl();
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+/**
+ * Udfører de egentlige indsættelser af SSR-instanser i databasen ud fra en fil med SSR-linier.
+ * Er særskilt Spring Bean for at kunne køre som @Async og dermed understøtte multitrådet-udførsel.
+ */
+public class YdelseInserter {
+	@Autowired
+	SSRWriteDAO dao;
+
+	public void readFileAndPerformDatabaseOperations(File file) {
+		BufferedReader bf = null;
+		try {
+			bf = new BufferedReader(new FileReader(file));
+
+			String line;
+			while ((line = bf.readLine()) != null) {
+				SsrAction ssrAction = SSRLineParser.parseLine(line);
+				ssrAction.execute(dao);
+			}
+		} catch (Exception e) {
+			throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
+		} finally {
+			IOUtils.closeQuietly(bf);
+		}
 	}
-
-	@Bean
-    public YdelseParser parser() {
-		return new YdelseParser();
-	}
-
-	@Bean
-	public YdelseInserter inserter() {
-		return new YdelseInserter();
-	}
-
 }

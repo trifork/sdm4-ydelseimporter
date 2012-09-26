@@ -46,6 +46,9 @@ public class YdelseParser implements Parser {
 	@Autowired
 	SSRWriteDAO dao;
 
+	@Autowired
+	YdelseInserter inserter;
+
 	/**
 	 * @see Parser#process(java.io.File)
 	 */
@@ -55,25 +58,8 @@ public class YdelseParser implements Parser {
 
 		countNumberOfLines(file);
 
-		readFileAndPerformDatabaseOperations(file);
+		inserter.readFileAndPerformDatabaseOperations(file);
     }
-
-	private void readFileAndPerformDatabaseOperations(File file) {
-		BufferedReader bf = null;
-		try {
-			bf = new BufferedReader(new FileReader(file));
-
-		    String line;
-		    while ((line = bf.readLine()) != null) {
-		        SsrAction ssrAction = SSRLineParser.parseLine(line);
-		        ssrAction.execute(dao);
-		    }
-		} catch (Exception e) {
-		    throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
-		} finally {
-			closeQuietly(bf);
-		}
-	}
 
 	private long countNumberOfLines(File file) {
 		BufferedReader bf = null;
