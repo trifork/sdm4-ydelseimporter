@@ -61,6 +61,18 @@ public class GenerateTestRegisterDumps {
 		}
 	}
 
+	public void generateSingleInsertionFollowedByDeletion(File root, String externalReference) {
+		File file = new File(root, "ssr_foo_bar.csv");
+		SsrWriter writer = new SsrWriter(file);
+		try {
+
+			writer.write(new SsrCommaConcat(randomSSR.randomSSR().withExternalReference(externalReference)).toString());
+			writer.write(makeDeletionLine(externalReference));
+		} finally {
+			writer.closeQuietly();
+		}
+	}
+
 	private String makeDeletionLine(String externalReference) {
 		String all_blank_fields_except_externalReference = ",,,                                                              ,";
 		return all_blank_fields_except_externalReference + externalReference;
