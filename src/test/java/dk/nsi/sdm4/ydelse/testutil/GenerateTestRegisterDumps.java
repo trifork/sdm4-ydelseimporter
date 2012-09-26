@@ -55,12 +55,15 @@ public class GenerateTestRegisterDumps {
 		File file = new File(root, "ssr_foo_bar.csv");
 		SsrWriter writer = new SsrWriter(file);
 		try {
-			String all_blank_fields_except_externalReference = ",,,                                                              ,";
-			String line = all_blank_fields_except_externalReference + externalReference;
-			writer.write(line);
+			writer.write(makeDeletionLine(externalReference));
 		} finally {
 			writer.closeQuietly();
 		}
+	}
+
+	private String makeDeletionLine(String externalReference) {
+		String all_blank_fields_except_externalReference = ",,,                                                              ,";
+		return all_blank_fields_except_externalReference + externalReference;
 	}
 
 	public List<SSR> dumpSsrs(File root, List<SSR> ssrs) {
@@ -68,18 +71,7 @@ public class GenerateTestRegisterDumps {
 		SsrWriter fileWriter = new SsrWriter(file);
 		try {
 			for (SSR ssr : ssrs) {
-	            CommaConcat concat = new CommaConcat();
-
-	            concat.add(ssr.getDoctorOrganisationIdentifier());
-	            concat.add(ssr.getPatientCpr().getHashedCpr());
-	            DateTime start = ssr.getTreatmentInterval().getStart();
-	            DateTime end = ssr.getTreatmentInterval().getEnd();
-	            assert (end.equals(start.plusDays(1)));
-	            concat.add(ssrFormat.format(start.toDate()));
-	            concat.add(ssrFormat.format(start.toDate()));
-	            concat.add(ssr.getExternalReference());
-
-				fileWriter.write(concat.toString());
+				fileWriter.write(new SsrCommaConcat(ssr).toString());
 	        }
 
 		    return ssrs;
@@ -110,6 +102,26 @@ public class GenerateTestRegisterDumps {
 
 		public void closeQuietly() {
 			IOUtils.closeQuietly(fileWriter);
+		}
+	}
+
+	class SsrCommaConcat {
+		CommaConcat concat = new CommaConcat();
+
+		public SsrCommaConcat(SSR ssr) {
+			concat.add(ssr.getDoctorOrganisationIdentifier());
+			concat.add(ssr.getPatientCpr().getHashedCpr());
+			DateTime start = ssr.getTreatmentInterval().getStart();
+			DateTime end = ssr.getTreatmentInterval().getEnd();
+			assert (end.equals(start.plusDays(1)));
+			concat.add(ssrFormat.format(start.toDate()));
+			concat.add(ssrFormat.format(start.toDate()));
+			concat.add(ssr.getExternalReference());
+		}
+
+		@Override
+		public String toString() {
+			return concat.toString();
 		}
 	}
 }
