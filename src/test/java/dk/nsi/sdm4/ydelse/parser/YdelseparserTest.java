@@ -222,7 +222,7 @@ public class YdelseparserTest {
 
 	@Test
 	public void canParseFileWithDeletionAndInsertionInSeparatePartsOfFile() {
-		// guards against the code messing up deletions and insertions when the fix for NSPSUPPORT-111 divides up the file
+		// guards against the code messing up deletions and insertions when the fix for NSPSUPPORT-108 divides up the file
 
 	}
 
