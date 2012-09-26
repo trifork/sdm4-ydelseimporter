@@ -53,26 +53,20 @@ public class GenerateTestRegisterDumps {
 
 	public void generateSingleDeletion(File root, String externalReference) {
 		File file = new File(root, "ssr_foo_bar.csv");
-		FileWriter fileWriter = null;
+		SsrWriter writer = new SsrWriter(file);
 		try {
-			fileWriter = new FileWriter(file);
-
 			String all_blank_fields_except_externalReference = ",,,                                                              ,";
-			fileWriter.write(all_blank_fields_except_externalReference + externalReference);
-			fileWriter.write(System.getProperty("line.separator"));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			String line = all_blank_fields_except_externalReference + externalReference;
+			writer.write(line);
 		} finally {
-			IOUtils.closeQuietly(fileWriter);
+			writer.closeQuietly();
 		}
 	}
 
 	public List<SSR> dumpSsrs(File root, List<SSR> ssrs) {
 		File file = new File(root, "ssr_foo_bar.csv");
-		FileWriter fileWriter = null;
+		SsrWriter fileWriter = new SsrWriter(file);
 		try {
-			fileWriter = new FileWriter(file);
-
 			for (SSR ssr : ssrs) {
 	            CommaConcat concat = new CommaConcat();
 
@@ -85,15 +79,36 @@ public class GenerateTestRegisterDumps {
 	            concat.add(ssrFormat.format(start.toDate()));
 	            concat.add(ssr.getExternalReference());
 
-	            String line = concat.toString();
-	            fileWriter.write(line);
-	            fileWriter.write(System.getProperty("line.separator"));
+				fileWriter.write(concat.toString());
 	        }
 
 		    return ssrs;
-	    } catch (IOException e) {
-	        throw new RuntimeException(e);
 	    } finally {
+			fileWriter.closeQuietly();
+		}
+	}
+
+	class SsrWriter {
+		FileWriter fileWriter;
+
+		public SsrWriter(File file) {
+			try {
+				this.fileWriter = new FileWriter(file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public void write(String line) {
+			try {
+				fileWriter.write(line);
+				fileWriter.write(System.getProperty("line.separator"));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public void closeQuietly() {
 			IOUtils.closeQuietly(fileWriter);
 		}
 	}
