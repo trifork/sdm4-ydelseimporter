@@ -180,6 +180,22 @@ public class YdelseparserTest {
 	}
 
 	@Test
+	public void insertionFollowedByInsertionResultsInNoRecordsEvenWhenDatabaseContainsRecordWithSameRefBeforeRun() throws IOException {
+		// guards against the fix for NSPSUPPORT-108 forgetting to actually execute the deletions in the file
+		final String externalReference = "JustAnOrdinaryReference ";
+		testDao.insert(randomSSR.randomSSR().withExternalReference(externalReference));
+
+		File datasetDir = tmpDir.newFolder();
+		generator.generateSingleInsertionFollowedByDeletion(datasetDir, externalReference);
+
+		parser.process(datasetDir);
+
+		List<SSR> seen = testDao.getAllSSRs();
+
+		assertEquals(0, seen.size());
+	}
+
+	@Test
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {
 	    File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
 
