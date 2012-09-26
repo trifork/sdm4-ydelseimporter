@@ -49,6 +49,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.Timed;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,9 +139,10 @@ public class YdelseparserTest {
 	}
 
     @Test
-    public void testParsing() throws IOException, DAOException {
+    @Timed(millis=15000L) // kører på 2-3 sek på min Macbook Pro, så 15 sek burde sikre mod at det løber løbsk uden at fejle på langsomme maskiner
+    public void canParseLargishFile() throws IOException, DAOException {
 	    File datasetDir = tmpDir.newFolder();
-	    int numberOfRecords = 10;
+	    int numberOfRecords = 200; // skal være nok til at sikre at forskellige tråde ser forskellige dele
 	    Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
 
 	    parser.process(datasetDir);
@@ -163,7 +165,6 @@ public class YdelseparserTest {
 
 		assertEquals(0, seen.size());
 	}
-
 
 	@Test
 	public void insertionFollowedByInsertionResultsInNoRecords() throws IOException {
@@ -218,6 +219,12 @@ public class YdelseparserTest {
 
 	    assertEquals(2, seen.size());
     }
+
+	@Test
+	public void canParseFileWithDeletionAndInsertionInSeparatePartsOfFile() {
+		// guards against the code messing up deletions and insertions when the fix for NSPSUPPORT-111 divides up the file
+
+	}
 
 	private File makeDatadirWithResource(String path) throws IOException {
 		File datasetDir = tmpDir.newFolder();

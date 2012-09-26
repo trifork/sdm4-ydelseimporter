@@ -65,7 +65,6 @@ public class GenerateTestRegisterDumps {
 		File file = new File(root, "ssr_foo_bar.csv");
 		SsrWriter writer = new SsrWriter(file);
 		try {
-
 			writer.write(new SsrCommaConcat(randomSSR.randomSSR().withExternalReference(externalReference)).toString());
 			writer.write(makeDeletionLine(externalReference));
 		} finally {
