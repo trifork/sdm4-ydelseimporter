@@ -50,21 +50,45 @@ public class YdelseParser implements Parser {
     public void process(File dataset) throws ParserException {
 		File file = findSingleFileOrComplain(dataset);
 
-        BufferedReader bf = null;
-        try {
-	        bf = new BufferedReader(new FileReader(file));
+		countNumberOfLines(file);
 
-            String line;
-            while ((line = bf.readLine()) != null) {
-                SsrAction ssrAction = SSRLineParser.parseLine(line);
-                ssrAction.execute(dao);
-            }
-        } catch (Exception e) {
-            throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
-        } finally {
-	        closeQuietly(bf);
-        }
+		readFileAndPerformDatabaseOperations(file);
     }
+
+	private void readFileAndPerformDatabaseOperations(File file) {
+		BufferedReader bf = null;
+		try {
+			bf = new BufferedReader(new FileReader(file));
+
+		    String line;
+		    while ((line = bf.readLine()) != null) {
+		        SsrAction ssrAction = SSRLineParser.parseLine(line);
+		        ssrAction.execute(dao);
+		    }
+		} catch (Exception e) {
+		    throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
+		} finally {
+			closeQuietly(bf);
+		}
+	}
+
+	private long countNumberOfLines(File file) {
+		BufferedReader bf = null;
+		try {
+			bf = new BufferedReader(new FileReader(file));
+
+			long numLines = 0;
+			while (bf.readLine() != null) {
+				numLines++;
+			}
+
+			return numLines;
+		} catch (Exception e) {
+			throw new ParserException("Could not count number of lines in" + file.getAbsolutePath(), e);
+		} finally {
+			closeQuietly(bf);
+		}
+	}
 
 	private void closeQuietly(BufferedReader bf) {
 		if (bf != null) {
