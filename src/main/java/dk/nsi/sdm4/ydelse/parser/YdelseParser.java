@@ -30,7 +30,6 @@ import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.common.splunk.SplunkLogger;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
@@ -53,8 +52,7 @@ public class YdelseParser implements Parser {
 
         BufferedReader bf = null;
         try {
-            FileReader reader = new FileReader(file);
-            bf = new BufferedReader(reader);
+	        bf = new BufferedReader(new FileReader(file));
 
             String line;
             while ((line = bf.readLine()) != null) {
@@ -64,15 +62,19 @@ public class YdelseParser implements Parser {
         } catch (Exception e) {
             throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
         } finally {
-            if (bf != null) {
-                try {
-                    bf.close();
-                } catch (IOException e) {
-                    log.error(e);
-                }
-            }
+	        closeQuietly(bf);
         }
     }
+
+	private void closeQuietly(BufferedReader bf) {
+		if (bf != null) {
+		    try {
+		        bf.close();
+		    } catch (IOException e) {
+		        log.error(e);
+		    }
+		}
+	}
 
 	private File findSingleFileOrComplain(File dataset) {
 		if (dataset == null) {
