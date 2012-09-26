@@ -37,6 +37,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Foretager gennemløb af en Ydelse-fil og koordinerer parsning og indsættelse/sletning.
+ */
 public class YdelseParser implements Parser {
     private static final SplunkLogger log = new SplunkLogger(YdelseParser.class);
 
