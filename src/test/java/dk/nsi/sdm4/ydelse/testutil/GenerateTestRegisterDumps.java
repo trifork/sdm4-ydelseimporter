@@ -28,6 +28,7 @@ package dk.nsi.sdm4.ydelse.testutil;
 
 import dk.nsi.sdm4.ydelse.relation.model.SSR;
 import dk.nsi.sdm4.ydelse.simulation.RandomSSR;
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,33 +48,53 @@ public class GenerateTestRegisterDumps {
 	}
 
     public List<SSR> generateSsrDumps(File root, int records) {
-        File file = new File(root, "ssr_foo_bar.csv");
-        try {
-            FileWriter fileWriter = new FileWriter(file);
-
-	        List<SSR> ssrs = randomSSR.randomSSRs(records);
-	        for (SSR ssr : ssrs) {
-                CommaConcat concat = new CommaConcat();
-
-                concat.add(ssr.getDoctorOrganisationIdentifier());
-                concat.add(ssr.getPatientCpr().getHashedCpr());
-                DateTime start = ssr.getTreatmentInterval().getStart();
-                DateTime end = ssr.getTreatmentInterval().getEnd();
-                assert (end.equals(start.plusDays(1)));
-                concat.add(ssrFormat.format(start.toDate()));
-                concat.add(ssrFormat.format(start.toDate()));
-                concat.add(ssr.getExternalReference());
-
-                String line = concat.toString();
-                fileWriter.write(line);
-                fileWriter.write(System.getProperty("line.separator"));
-            }
-
-            fileWriter.close();
-
-	        return ssrs;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+	    return dumpSsrs(root, randomSSR.randomSSRs(records));
     }
+
+	public void generateSingleDeletion(File root, String externalReference) {
+		File file = new File(root, "ssr_foo_bar.csv");
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(file);
+
+			String all_blank_fields_except_externalReference = ",,,                                                              ,";
+			fileWriter.write(all_blank_fields_except_externalReference + externalReference);
+			fileWriter.write(System.getProperty("line.separator"));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtils.closeQuietly(fileWriter);
+		}
+	}
+
+	public List<SSR> dumpSsrs(File root, List<SSR> ssrs) {
+		File file = new File(root, "ssr_foo_bar.csv");
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(file);
+
+			for (SSR ssr : ssrs) {
+	            CommaConcat concat = new CommaConcat();
+
+	            concat.add(ssr.getDoctorOrganisationIdentifier());
+	            concat.add(ssr.getPatientCpr().getHashedCpr());
+	            DateTime start = ssr.getTreatmentInterval().getStart();
+	            DateTime end = ssr.getTreatmentInterval().getEnd();
+	            assert (end.equals(start.plusDays(1)));
+	            concat.add(ssrFormat.format(start.toDate()));
+	            concat.add(ssrFormat.format(start.toDate()));
+	            concat.add(ssr.getExternalReference());
+
+	            String line = concat.toString();
+	            fileWriter.write(line);
+	            fileWriter.write(System.getProperty("line.separator"));
+	        }
+
+		    return ssrs;
+	    } catch (IOException e) {
+	        throw new RuntimeException(e);
+	    } finally {
+			IOUtils.closeQuietly(fileWriter);
+		}
+	}
 }

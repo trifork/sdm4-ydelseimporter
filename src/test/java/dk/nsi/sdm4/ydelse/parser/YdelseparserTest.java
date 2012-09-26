@@ -151,6 +151,19 @@ public class YdelseparserTest {
         assertEquals(expected, seenAsSet);
     }
 
+	@Test
+	public void testDeleteNonexistingRef() throws IOException {
+		// this will happen when we solve NSPSUPPORT-108
+		File datasetDir = tmpDir.newFolder();
+		generator.generateSingleDeletion(datasetDir, "DoesNotExist            ");
+
+		parser.process(datasetDir);
+
+		List<SSR> seen = testDao.getAllSSRs();
+
+		assertEquals(0, seen.size());
+	}
+
     @Test
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {
 	    File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
