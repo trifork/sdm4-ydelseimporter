@@ -220,12 +220,6 @@ public class YdelseparserTest {
 	    assertEquals(2, seen.size());
     }
 
-	@Test
-	public void canParseFileWithDeletionAndInsertionInSeparatePartsOfFile() {
-		// guards against the code messing up deletions and insertions when the fix for NSPSUPPORT-108 divides up the file
-
-	}
-
 	private File makeDatadirWithResource(String path) throws IOException {
 		File datasetDir = tmpDir.newFolder();
 		URL url = this.getClass().getResource(path);
