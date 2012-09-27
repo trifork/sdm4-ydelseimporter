@@ -154,7 +154,7 @@ public class YdelseparserTest {
     @Timed(millis=15000L) // kører på 2-3 sek på min Macbook Pro, så 15 sek burde sikre mod at det løber løbsk uden at fejle på langsomme maskiner
     public void canParseLargishFile() throws IOException, DAOException {
 	    File datasetDir = tmpDir.newFolder();
-	    int numberOfRecords = 200; // skal være nok til at sikre at forskellige tråde ser forskellige dele
+	    int numberOfRecords = 200;
 	    Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
 
 	    parser.process(datasetDir);
