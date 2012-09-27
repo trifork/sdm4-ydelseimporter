@@ -34,4 +34,6 @@ import java.util.List;
 public interface SSRTestPurposeDAO extends SSRWriteDAO {
 	public void purge() throws DAOException;
 	public List<SSR> getAllSSRs() throws DAOException;
+
+	long countAllSSRs() throws DAOException;
 }

@@ -47,4 +47,10 @@ public class SSRTestPurposeDAOImpl extends SSRDAOImpl implements SSRTestPurposeD
 	public List<SSR> getAllSSRs() throws DAOException {
 		return jdbcTemplate.query("SELECT * FROM SSR", new SSRMapper());
 	}
+
+	@Override
+	public long countAllSSRs() throws DAOException {
+		return jdbcTemplate.queryForLong("SELECT count(*) FROM SSR");
+	}
+
 }
