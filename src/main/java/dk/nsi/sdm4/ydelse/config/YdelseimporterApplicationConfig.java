@@ -32,8 +32,10 @@ import dk.nsi.sdm4.ydelse.parser.YdelseInserter;
 import dk.nsi.sdm4.ydelse.parser.YdelseParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
+@EnableAsync
 public class YdelseimporterApplicationConfig {
 	@Bean
 	public SSRWriteDAO writeDao() {

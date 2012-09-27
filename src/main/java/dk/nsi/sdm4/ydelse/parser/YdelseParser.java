@@ -36,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Foretager gennemløb af en Ydelse-fil og koordinerer parsning og indsættelse/sletning.
@@ -58,8 +60,15 @@ public class YdelseParser implements Parser {
 
 		countNumberOfLines(file);
 
-		inserter.readFileAndPerformDatabaseOperations(file);
-    }
+		Future<Void> insertionFuture = inserter.readFileAndPerformDatabaseOperations(file);
+		try {
+			insertionFuture.get();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new ParserException("Unable to perform insertions for " + file.getAbsolutePath(), e);
+		}
+	}
 
 	private long countNumberOfLines(File file) {
 		BufferedReader bf = null;

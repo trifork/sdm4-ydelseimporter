@@ -30,10 +30,12 @@ import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.concurrent.Future;
 
 /**
  * Udfører de egentlige indsættelser af SSR-instanser i databasen ud fra en fil med SSR-linier.
@@ -43,7 +45,15 @@ public class YdelseInserter {
 	@Autowired
 	SSRWriteDAO dao;
 
-	public void readFileAndPerformDatabaseOperations(File file) {
+	/**
+	 * Læser den angivne fil, parser hver linie og udfører de angivne operationer
+	 * @return Future, der kan bruges til at holde styr på, om processen er færdig
+	 */
+/*
+	@Async
+	@Transactional
+*/
+	public Future<Void> readFileAndPerformDatabaseOperations(File file) {
 		BufferedReader bf = null;
 		try {
 			bf = new BufferedReader(new FileReader(file));
@@ -58,5 +68,7 @@ public class YdelseInserter {
 		} finally {
 			IOUtils.closeQuietly(bf);
 		}
+
+		return new AsyncResult<Void>(null); // bruges bare til at signalere completion
 	}
 }

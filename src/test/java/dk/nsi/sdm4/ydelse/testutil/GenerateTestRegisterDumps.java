@@ -85,6 +85,7 @@ public class GenerateTestRegisterDumps {
 				fileWriter.write(new SsrCommaConcat(ssr).toString());
 	        }
 
+			System.out.println("Wrote " + ssrs.size() + " lines to " + file.getAbsolutePath());
 		    return ssrs;
 	    } finally {
 			fileWriter.closeQuietly();
