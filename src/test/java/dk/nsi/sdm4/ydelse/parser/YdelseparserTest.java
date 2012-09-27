@@ -40,8 +40,10 @@ import dk.nsi.sdm4.ydelse.simulation.RandomDataUtilForTestPurposes;
 import dk.nsi.sdm4.ydelse.simulation.RandomSSR;
 import dk.nsi.sdm4.ydelse.testutil.GenerateTestRegisterDumps;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -52,7 +54,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.Timed;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,9 +67,11 @@ import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
 @ContextConfiguration(classes = {YdelseparserTest.TestConfig.class, YdelseimporterApplicationConfig.class, TestDbConfiguration.class})
 public class YdelseparserTest {
+	private static final Logger log = Logger.getLogger(YdelseparserTest.class);
+
+
 	@Autowired
 	GenerateTestRegisterDumps generator;
 
@@ -149,20 +153,21 @@ public class YdelseparserTest {
 		}
 	}
 
-    @Test
-    @Timed(millis=15000L) // kører på 2-3 sek på min Macbook Pro, så 15 sek burde sikre mod at det løber løbsk uden at fejle på langsomme maskiner
-    public void canParseLargishFile() throws IOException, DAOException {
-	    File datasetDir = tmpDir.newFolder();
-	    int numberOfRecords = 200; // skal være nok til at sikre at forskellige tråde ser forskellige dele
-	    Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
+	@Test
+	@Timed(millis = 15000L)
+	// kører på 2-3 sek på min Macbook Pro, så 15 sek burde sikre mod at det løber løbsk uden at fejle på langsomme maskiner
+	public void canParseLargishFile() throws IOException, DAOException {
+		File datasetDir = tmpDir.newFolder();
+		int numberOfRecords = 200; // skal være nok til at sikre at forskellige tråde ser forskellige dele
+		Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
 
-	    parser.process(datasetDir);
+		parser.process(datasetDir);
 
-	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
+		Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
-        assertEquals(expected.size(), seenAsSet.size());
-        assertEquals(expected, seenAsSet);
-    }
+		assertEquals(expected.size(), seenAsSet.size());
+		assertEquals(expected, seenAsSet);
+	}
 
 	@Test
 	public void canDeleteNonexistingRef() throws IOException {
@@ -207,45 +212,45 @@ public class YdelseparserTest {
 	}
 
 	@Test
-    public void testParsingOfFileWithUpdate() throws IOException, DAOException {
-	    File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
+	public void testParsingOfFileWithUpdate() throws IOException, DAOException {
+		File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
 
-	    parser.process(datasetDir);
+		parser.process(datasetDir);
 
-	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
+		Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
-	    assertEquals(2, seenAsSet.size());
+		assertEquals(2, seenAsSet.size());
 
-        Set<SSR> expected = new HashSet<SSR>();
-        HashedCpr hashedPatientCpr = HashedCpr.buildFromHashedString("1234567890123456789012345678901234567890");
-        DoctorOrganisationIdentifier doctorOrganisationIdentifier = DoctorOrganisationIdentifier.newInstance("034002");
-        String externalReference = "AnExternalReferenceToSSR";
+		Set<SSR> expected = new HashSet<SSR>();
+		HashedCpr hashedPatientCpr = HashedCpr.buildFromHashedString("1234567890123456789012345678901234567890");
+		DoctorOrganisationIdentifier doctorOrganisationIdentifier = DoctorOrganisationIdentifier.newInstance("034002");
+		String externalReference = "AnExternalReferenceToSSR";
 
-        DateTime firstDate = new DateTime(2011, 2, 17, 0, 0, 0, 0);
-        DateTime secondDate = new DateTime(2011, 2, 20, 0, 0, 0, 0);
+		DateTime firstDate = new DateTime(2011, 2, 17, 0, 0, 0, 0);
+		DateTime secondDate = new DateTime(2011, 2, 20, 0, 0, 0, 0);
 
-        Interval firstInterval = new Interval(firstDate, firstDate.plusDays(1));
-        Interval secondInterval = new Interval(secondDate, secondDate.plusDays(1));
+		Interval firstInterval = new Interval(firstDate, firstDate.plusDays(1));
+		Interval secondInterval = new Interval(secondDate, secondDate.plusDays(1));
 
-        expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, firstInterval,
-                externalReference));
-        expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, secondInterval,
-                externalReference));
+		expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, firstInterval,
+				externalReference));
+		expected.add(SSR.createInstance(hashedPatientCpr, doctorOrganisationIdentifier, secondInterval,
+				externalReference));
 
-        assertEquals(expected.size(), seenAsSet.size());
-        assertEquals(expected, seenAsSet);
-    }
+		assertEquals(expected.size(), seenAsSet.size());
+		assertEquals(expected, seenAsSet);
+	}
 
 	@Test
-    public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException, IOException {
-	    File datasetDir = makeDatadirWithResource("Ydelsesudtraek.csv");
+	public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException, IOException {
+		File datasetDir = makeDatadirWithResource("Ydelsesudtraek.csv");
 
-	    parser.process(datasetDir);
+		parser.process(datasetDir);
 
-	    List<SSR> seen = testDao.getAllSSRs();
+		List<SSR> seen = testDao.getAllSSRs();
 
-	    assertEquals(2, seen.size());
-    }
+		assertEquals(2, seen.size());
+	}
 
 	private File makeDatadirWithResource(String path) throws IOException {
 		File datasetDir = tmpDir.newFolder();
@@ -253,5 +258,48 @@ public class YdelseparserTest {
 		FileUtils.copyURLToFile(url, new File(datasetDir, "testfile.csv"));
 
 		return datasetDir;
+	}
+
+	@Test
+	public void timeParsePregenerated() throws IOException, DAOException {
+		int[] batchSizes = new int[]{200000, 100000, 10000, 1000, 100, 10, 1};
+		int[] allNumberOfLines = new int[]{100, 1000, 10000, 100000, 200000};
+
+		log.warn("number of rows, batchSize, millis, faktor");
+		for (int numberOfLines : allNumberOfLines) {
+			lavData(numberOfLines);
+
+			long firstBatchSizeMillis = 0;
+			boolean firstBatch = true;
+			for (int batchSize : batchSizes) {
+				if (batchSize <= numberOfLines) {
+					inserter.batchSize = batchSize;
+					testDao.purge();
+					StopWatch watch = new StopWatch();
+					watch.start();
+					parser.process(new File("/Users/jakob/tmp/ssr-testdata-" + numberOfLines));
+					watch.stop();
+
+					long thisBatchMillis = watch.getTotalTimeMillis();
+					if (firstBatch) {
+						firstBatchSizeMillis = thisBatchMillis;
+						firstBatch = false;
+					}
+
+					assertEquals(numberOfLines, testDao.countAllSSRs());
+
+					log.warn(numberOfLines + "\t" + inserter.batchSize + "\t" + thisBatchMillis + "\t" + Math.round(10 * 1d * thisBatchMillis / firstBatchSizeMillis)/10d);
+				}
+			}
+		}
+	}
+
+	public void lavData(int size) {
+
+		File dir = new File("/Users/jakob/tmp/ssr-testdata-" + size);
+		if (!dir.exists()) {
+			dir.mkdirs();
+			generator.generateSsrDumps(dir, size);
+		}
 	}
 }
