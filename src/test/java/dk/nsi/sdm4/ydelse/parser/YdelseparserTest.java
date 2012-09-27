@@ -105,8 +105,19 @@ public class YdelseparserTest {
 	@Autowired
 	YdelseParser parser;
 
+
+	@Autowired
+	YdelseInserter inserter;
+
 	@Rule
 	public TemporaryFolder tmpDir = new TemporaryFolder();
+
+	@Before
+	public void clearDatabase() {
+		// selvom testen starter transaktioner og ruller dem tilbage efter hver testmetode (på grund af @Transactional), kører
+		// inserts mod databasen i batches som hver er en selvstændig transaktion, så vi er nødt til at rydde databasen manuelt
+		testDao.purge();
+	}
 
 	@Test(expected = ParserException.class)
 	public void complainsIfDatasetIsNull() throws IOException {
