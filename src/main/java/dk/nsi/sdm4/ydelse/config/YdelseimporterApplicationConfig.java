@@ -33,6 +33,9 @@ import dk.nsi.sdm4.ydelse.parser.YdelseParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @EnableAsync
@@ -50,6 +53,13 @@ public class YdelseimporterApplicationConfig {
 	@Bean
 	public YdelseInserter inserter() {
 		return new YdelseInserter();
+	}
+
+	@Bean
+	public TransactionTemplate templateForNewTransactions(PlatformTransactionManager transactionManager) {
+		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+		transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		return transactionTemplate;
 	}
 
 }
