@@ -29,21 +29,39 @@ package dk.nsi.sdm4.ydelse.parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
  * Udfører de egentlige indsættelser af SSR-instanser i databasen ud fra en fil med SSR-linier.
  * Er særskilt Spring Bean for at kunne køre som @Async og dermed understøtte multitrådet-udførsel.
  */
+@Transactional
 public class YdelseInserter {
+	private static final Logger log = Logger.getLogger(YdelseInserter.class);
+
 	@Autowired
 	SSRWriteDAO dao;
+
+	@Autowired
+	TransactionTemplate transactionTemplate;
+
+	protected int batchSize = 1;
+	private int progressBatchSize = 1000;
+
+	List<SsrAction> batch = new ArrayList<SsrAction>(batchSize);
 
 	/**
 	 * Læser den angivne fil, parser hver linie og udfører de angivne operationer
@@ -58,11 +76,21 @@ public class YdelseInserter {
 		try {
 			bf = new BufferedReader(new FileReader(file));
 
+			long counter = 0;
 			String line;
 			while ((line = bf.readLine()) != null) {
 				SsrAction ssrAction = SSRLineParser.parseLine(line);
-				ssrAction.execute(dao);
+				batch.add(ssrAction);
+				counter++;
+				if (counter % progressBatchSize == 0) {
+					log.info("Progress: " + counter);
+				}
+				if (batch.size() == batchSize) {
+					commitBatch();
+				}
 			}
+
+			commitBatch(); // den rest der kan være fra sidste gennemløb
 		} catch (Exception e) {
 			throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
 		} finally {
@@ -70,5 +98,19 @@ public class YdelseInserter {
 		}
 
 		return new AsyncResult<Void>(null); // bruges bare til at signalere completion
+	}
+
+	private void commitBatch() {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				log.info("Committing batch of size " + batch.size());
+				for (SsrAction ssrAction : batch) {
+					ssrAction.execute(dao);
+				}
+				batch.clear();
+				return null;
+			}
+		});
 	}
 }
