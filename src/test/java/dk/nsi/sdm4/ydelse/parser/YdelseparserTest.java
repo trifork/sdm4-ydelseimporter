@@ -42,6 +42,7 @@ import dk.nsi.sdm4.ydelse.testutil.GenerateTestRegisterDumps;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
