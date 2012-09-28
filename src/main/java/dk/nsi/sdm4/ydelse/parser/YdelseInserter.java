@@ -34,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -103,12 +101,14 @@ public class YdelseInserter {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-				log.info("Committing batch of size " + batch.size());
-				for (SsrAction ssrAction : batch) {
-					ssrAction.execute(dao);
+				if (batch.size() > 0) {
+					log.info("Committing batch of size " + batch.size());
+					for (SsrAction ssrAction : batch) {
+						ssrAction.execute(dao);
+					}
+					batch.clear();
 				}
-				batch.clear();
-				return null;
+				return null; // kun for at gøre TransactionCallback-interfacet glad, ingen bruger en returværdi til noget
 			}
 		});
 	}
