@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -49,7 +50,6 @@ import java.util.concurrent.Future;
  * Udfører de egentlige indsættelser af SSR-instanser i databasen ud fra en fil med SSR-linier.
  * Er særskilt Spring Bean for at kunne køre som @Async og dermed understøtte multitrådet-udførsel.
  */
-@Transactional
 public class YdelseInserter {
 	private static final Logger log = Logger.getLogger(YdelseInserter.class);
 
