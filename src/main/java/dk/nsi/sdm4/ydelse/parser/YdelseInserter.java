@@ -70,10 +70,6 @@ public class YdelseInserter {
 	 * Læser den angivne fil, parser hver linie og udfører de angivne operationer
 	 * @return Future, der kan bruges til at holde styr på, om processen er færdig
 	 */
-/*
-	@Async
-	@Transactional
-*/
 	public Future<Void> readFileAndPerformDatabaseOperations(File file) {
 		BufferedReader bf = null;
 		try {
