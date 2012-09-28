@@ -26,25 +26,19 @@
  */
 package dk.nsi.sdm4.ydelse.common.util;
 
-import dk.nsi.sdm4.ydelse.common.exception.HashException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 public class HasherTest {
 
 	@Test
-	public void testSha1Hashing() {
+	public void testSha1Hashing() throws Exception {
 		String stringToHash = "This is a string to hash";
 		String expectedHexString = "7A1A86FAF45F720657B0906FA5C2DE5D7276FFBB";
-		try {
-			String hash = Hasher.hash(stringToHash);
-			assertEquals(expectedHexString, hash);
-		} catch (HashException e) {
-			fail();
-		}
+		String hash = Hasher.hash(stringToHash);
+		assertEquals(expectedHexString, hash);
 	}
 
 	@Test
