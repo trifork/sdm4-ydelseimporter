@@ -30,6 +30,7 @@ import dk.nsi.sdm4.ydelse.common.exception.HashException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class HasherTest {
@@ -44,5 +45,10 @@ public class HasherTest {
 		} catch (HashException e) {
 			fail();
 		}
+	}
+
+	@Test
+	public void hexOfNullReturnsNull() {
+		assertNull(Hasher.getHex(null));
 	}
 }
