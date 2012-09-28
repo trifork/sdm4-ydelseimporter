@@ -66,7 +66,6 @@ import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
 @ContextConfiguration(classes = {YdelseparserTest.TestConfig.class, YdelseimporterApplicationConfig.class, TestDbConfiguration.class})
 public class YdelseparserTest {
 	@Autowired
