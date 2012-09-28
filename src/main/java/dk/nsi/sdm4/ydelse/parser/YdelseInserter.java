@@ -61,6 +61,7 @@ public class YdelseInserter {
 
 	@Value("${spooler.ydelseimporter.batchsize}")
 	private int progressBatchSize;
+	private int progressBatchSize = 10000;
 
 	List<SsrAction> batch = new ArrayList<SsrAction>(batchSize);
 
