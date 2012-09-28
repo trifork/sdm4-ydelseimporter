@@ -167,7 +167,7 @@ public class YdelseparserTest {
 
 	@Test
 	public void canDeleteNonexistingRef() throws IOException {
-		// this will happen when we solve NSPSUPPORT-108
+		// this can happen in e.g. the initial import
 		File datasetDir = tmpDir.newFolder();
 		generator.generateSingleDeletion(datasetDir, "DoesNotExist            ");
 
@@ -179,8 +179,8 @@ public class YdelseparserTest {
 	}
 
 	@Test
-	public void insertionFollowedByInsertionResultsInNoRecords() throws IOException {
-		// this will happen when we solve NSPSUPPORT-108
+	public void insertionFollowedByDeletionResultsInNoRecords() throws IOException {
+		// this happens in actual imports
 		File datasetDir = tmpDir.newFolder();
 		generator.generateSingleInsertionFollowedByDeletion(datasetDir, "JustAnOrdinaryReference ");
 
