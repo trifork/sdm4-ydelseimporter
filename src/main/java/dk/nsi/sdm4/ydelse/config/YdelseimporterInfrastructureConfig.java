@@ -45,6 +45,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class YdelseimporterInfrastructureConfig extends StamdataConfiguration {
 	@Bean
 	public SLALogger slaLogger() {
-		return new SLALogConfig("Stamdata SKS-importer", "sksimporter").getSLALogger();
+		return new SLALogConfig("Stamdata Ydelse/SSR-importer", "ydelseimporter").getSLALogger();
 	}
 }
