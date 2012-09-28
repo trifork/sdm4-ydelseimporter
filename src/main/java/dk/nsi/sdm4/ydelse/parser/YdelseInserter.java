@@ -89,7 +89,7 @@ public class YdelseInserter {
 				}
 			}
 
-			commitBatch(); // den rest der kan være fra sidste gennemløb
+			commitBatch(); // commit den rest der kan være fra sidste gennemløb
 		} catch (Exception e) {
 			throw new ParserException("Could not parse file " + file.getAbsolutePath(), e);
 		} finally {
