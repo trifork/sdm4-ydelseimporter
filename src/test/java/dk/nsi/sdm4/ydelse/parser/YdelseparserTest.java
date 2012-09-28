@@ -29,7 +29,6 @@ package dk.nsi.sdm4.ydelse.parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import dk.nsi.sdm4.ydelse.common.exception.DAOException;
-import dk.nsi.sdm4.ydelse.common.exception.RegisterImportException;
 import dk.nsi.sdm4.ydelse.config.YdelseimporterApplicationConfig;
 import dk.nsi.sdm4.ydelse.dao.SSRTestPurposeDAO;
 import dk.nsi.sdm4.ydelse.dao.impl.SSRTestPurposeDAOImpl;
@@ -53,7 +52,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.Timed;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -237,7 +235,7 @@ public class YdelseparserTest {
     }
 
 	@Test
-    public void testParsingOfFileFromCSC() throws RegisterImportException, DAOException, IOException {
+    public void testParsingOfFileFromCSC() throws DAOException, IOException {
 	    File datasetDir = makeDatadirWithResource("Ydelsesudtraek.csv");
 
 	    parser.process(datasetDir);

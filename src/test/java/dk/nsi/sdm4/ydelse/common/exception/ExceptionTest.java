@@ -58,48 +58,6 @@ public class ExceptionTest {
 	}
 
 	@Test
-	public void testAssertionFormatException() {
-		final String thrStr = "Throwable test";
-		final String exStr = "Test";
-		final String ex2Str = "Test2";
-		Exception thr = new Exception(thrStr);
-		AssertionFormatException ex = new AssertionFormatException(exStr);
-		AssertionFormatException ex2 = new AssertionFormatException(ex2Str, thr);
-
-		assertEquals(exStr, ex.getMessage());
-		assertEquals(ex2Str, ex2.getMessage());
-		assertEquals(thrStr, ex2.getCause().getMessage());
-	}
-
-	@Test
-	public void testAssertionParseException() {
-		final String thrStr = "Throwable test";
-		final String exStr = "Test";
-		final String ex2Str = "Test2";
-		Exception thr = new Exception(thrStr);
-		AssertionParseException ex = new AssertionParseException(exStr);
-		AssertionParseException ex2 = new AssertionParseException(ex2Str, thr);
-
-		assertEquals(exStr, ex.getMessage());
-		assertEquals(ex2Str, ex2.getMessage());
-		assertEquals(thrStr, ex2.getCause().getMessage());
-	}
-
-	@Test
-	public void testRelationTypeMismatchException() {
-		final String thrStr = "Throwable test";
-		final String exStr = "Test";
-		final String ex2Str = "Test2";
-		Exception thr = new Exception(thrStr);
-		RelationTypeMismatchException ex = new RelationTypeMismatchException(exStr);
-		RelationTypeMismatchException ex2 = new RelationTypeMismatchException(ex2Str, thr);
-
-		assertEquals(exStr, ex.getMessage());
-		assertEquals(ex2Str, ex2.getMessage());
-		assertEquals(thrStr, ex2.getCause().getMessage());
-	}
-
-	@Test
 	public void testParserException() {
 		final String thrStr = "Throwable test";
 		final String exStr = "Test";
@@ -107,34 +65,6 @@ public class ExceptionTest {
 		Exception thr = new Exception(thrStr);
 		ParserException ex = new ParserException(exStr);
 		ParserException ex2 = new ParserException(ex2Str, thr);
-
-		assertEquals(exStr, ex.getMessage());
-		assertEquals(ex2Str, ex2.getMessage());
-		assertEquals(thrStr, ex2.getCause().getMessage());
-	}
-
-	@Test
-	public void testPropertySupportException() {
-		final String thrStr = "Throwable test";
-		final String exStr = "Test";
-		final String ex2Str = "Test2";
-		Exception thr = new Exception(thrStr);
-		PropertySupportException ex = new PropertySupportException(exStr);
-		PropertySupportException ex2 = new PropertySupportException(ex2Str, thr);
-
-		assertEquals(exStr, ex.getMessage());
-		assertEquals(ex2Str, ex2.getMessage());
-		assertEquals(thrStr, ex2.getCause().getMessage());
-	}
-
-	@Test
-	public void testRegisterImportException() {
-		final String thrStr = "Throwable test";
-		final String exStr = "Test";
-		final String ex2Str = "Test2";
-		Exception thr = new Exception(thrStr);
-		RegisterImportException ex = new RegisterImportException(exStr);
-		RegisterImportException ex2 = new RegisterImportException(ex2Str, thr);
 
 		assertEquals(exStr, ex.getMessage());
 		assertEquals(ex2Str, ex2.getMessage());
