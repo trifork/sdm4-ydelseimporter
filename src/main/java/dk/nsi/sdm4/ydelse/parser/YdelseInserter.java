@@ -57,10 +57,9 @@ public class YdelseInserter {
 	@Autowired
 	TransactionTemplate transactionTemplate;
 
+	@Value("${spooler.ydelseimporter.batchsize}")
 	protected int batchSize = 1;
 
-	@Value("${spooler.ydelseimporter.batchsize}")
-	private int progressBatchSize;
 	private int progressBatchSize = 10000;
 
 	List<SsrAction> batch = new ArrayList<SsrAction>(batchSize);
