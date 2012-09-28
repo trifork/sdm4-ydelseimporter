@@ -31,6 +31,7 @@ import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +60,9 @@ public class YdelseInserter {
 	TransactionTemplate transactionTemplate;
 
 	protected int batchSize = 1;
-	private int progressBatchSize = 1000;
+
+	@Value("${spooler.ydelseimporter.batchsize}")
+	private int progressBatchSize;
 
 	List<SsrAction> batch = new ArrayList<SsrAction>(batchSize);
 
