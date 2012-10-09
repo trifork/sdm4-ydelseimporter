@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS SSR (
   admittedStart datetime NOT NULL,
   admittedEnd datetime NOT NULL,
 
-  externalReference char(24) NOT NULL
+  externalReference char(24) NOT NULL,
+  INDEX SSR_INDEX USING HASH (patientCpr, doctorOrganisationIdentifier)
 ) ENGINE=InnoDB COLLATE=utf8_bin;
-
-CREATE INDEX SSR_INDEX USING HASH on SSR(patientCpr, doctorOrganisationIdentifier);
