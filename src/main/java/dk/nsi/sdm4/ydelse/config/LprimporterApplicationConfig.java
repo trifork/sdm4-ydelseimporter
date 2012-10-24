@@ -38,7 +38,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.File;
 
 @Configuration
-@EnableAsync
 public class LprimporterApplicationConfig {
 	@Bean
 	public Parser parser() {
@@ -54,7 +53,6 @@ public class LprimporterApplicationConfig {
 			}
 		};
 	}
-
 
 	@Bean
 	public TransactionTemplate templateForNewTransactions(PlatformTransactionManager transactionManager) {
