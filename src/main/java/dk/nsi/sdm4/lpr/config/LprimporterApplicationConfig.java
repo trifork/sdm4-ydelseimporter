@@ -27,32 +27,20 @@
 package dk.nsi.sdm4.lpr.config;
 
 import dk.nsi.sdm4.core.parser.Parser;
-import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.lpr.dao.LPRWriteDAO;
 import dk.nsi.sdm4.lpr.dao.impl.LPRDAOImpl;
+import dk.nsi.sdm4.lpr.parsers.LPRParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.io.File;
-
 @Configuration
 public class LprimporterApplicationConfig {
 	@Bean
 	public Parser parser() {
-		return new Parser() {
-			@Override
-			public void process(File dataSet) throws ParserException {
-				throw new UnsupportedOperationException("process");
-			}
-
-			@Override
-			public String getHome() {
-				return "lprimporter";
-			}
-		};
+		return new LPRParser();
 	}
 
 	@Bean
