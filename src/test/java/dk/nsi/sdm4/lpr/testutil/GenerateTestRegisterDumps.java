@@ -46,7 +46,7 @@ public class GenerateTestRegisterDumps {
 	@Autowired
 	RandomLPR randomLPR;
 
-	public GenerateTestRegisterDumps(int numberOfRecords) {
+	public void generateTestRegisterDumps(int numberOfRecords) {
 		generateLprDumps(numberOfRecords);
 	}
 
