@@ -39,7 +39,9 @@ import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -55,14 +57,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
 @ContextConfiguration(classes = {LPRFileHandlerTest.TestConfig.class, TestDbConfiguration.class})
 public class LPRFileHandlerTest {
-    private static final String dirname = GenerateTestRegisterDumps.FTP_PATH;
+	@Rule
+	public TemporaryFolder tmpDir = new TemporaryFolder();
 
 	@Autowired
 	private GenerateTestRegisterDumps generator;
@@ -104,12 +105,10 @@ public class LPRFileHandlerTest {
 
 	@Test
     public void testParsing() throws IOException, DAOException {
-        String filename = dirname + "/" + GenerateTestRegisterDumps.LPR_OUTPUT_FILE_NAME;
-
-        removeFileAndLeaveParentDirectoryEmpty(filename);
+        String filename = getPathToNamedFileInEmptyDir(GenerateTestRegisterDumps.LPR_OUTPUT_FILE_NAME);
 
 		final int numberOfRecords = 10;
-		generator.generateTestRegisterDumps(numberOfRecords);
+		generator.generateTestRegisterDumps(new File(filename).getParentFile(), numberOfRecords);
 
         assertThatJobRunsSuccesfully(filename);
 
@@ -171,8 +170,7 @@ public class LPRFileHandlerTest {
 
     @Test
     public void testParsingOfRealFileFromVendorUsingHandlerDirectlyInsteadOfRegisterImportJob() throws IOException {
-
-        String filename = dirname + "/" + "lpr_2011_10_05_orignal_name_was_BR_051020111448.CSV.csv";
+	    String filename = getPathToNamedFileInEmptyDir("lpr_2011_10_05_orignal_name_was_BR_051020111448.CSV.csv");
         copyResourceToFile("BR_190520111525.CSV", filename);
 
         parser.process(new File(filename).getParentFile());
@@ -188,14 +186,18 @@ public class LPRFileHandlerTest {
     }
 
     private void assertThatJobParsesFile(String resourceNameForFile) throws IOException, DAOException {
-        String filename = dirname + "/" + "lpr_foo_" + resourceNameForFile;
+	    String filename = getPathToNamedFileInEmptyDir("lpr_foo_" + resourceNameForFile);
         copyResourceToFile(resourceNameForFile, filename);
 
         assertThatJobRunsSuccesfully(filename);
     }
 
-    private void copyResourceToFile(String resourceName, String filename) throws IOException {
-        removeFileAndLeaveParentDirectoryEmpty(filename);
+	private String getPathToNamedFileInEmptyDir(String resourceNameForFile) throws IOException {
+		File emptyTmpDir = tmpDir.newFolder();
+		return emptyTmpDir.getAbsolutePath() + "/" + resourceNameForFile;
+	}
+
+	private void copyResourceToFile(String resourceName, String filename) throws IOException {
 	    URL url = this.getClass().getResource(resourceName);
         FileUtils.copyURLToFile(url, new File(filename));
     }
@@ -210,12 +212,5 @@ public class LPRFileHandlerTest {
 
     private Set<LPR> getAllLprsAsSet() throws DAOException {
 	    return new HashSet<LPR>(testDao.getAllLPRs());
-    }
-
-    private void removeFileAndLeaveParentDirectoryEmpty(String filename) throws IOException {
-	    File directory = new File(filename).getParentFile();
-	    FileUtils.deleteDirectory(directory);
-	    assertFalse(directory.exists());
-	    assertTrue(directory.mkdirs());
     }
 }

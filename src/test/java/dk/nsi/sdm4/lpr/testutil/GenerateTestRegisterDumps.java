@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat;
 import static dk.nsi.sdm4.lpr.relation.model.LPR.LprRelationType;
 
 public class GenerateTestRegisterDumps {
-	public static final String FTP_PATH = "stubbedftp";
 	public static final String LPR_OUTPUT_FILE_NAME = "lpr_foo_bar.csv";
 	public static final int LPR_SEED = 1337;
 	private final static SimpleDateFormat lprFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -46,20 +45,15 @@ public class GenerateTestRegisterDumps {
 	@Autowired
 	RandomLPR randomLPR;
 
-	public void generateTestRegisterDumps(int numberOfRecords) {
-		generateLprDumps(numberOfRecords);
-	}
+	public void generateTestRegisterDumps(File path, int numberOfRecords) {
+		RandomLPR randomLPR1 = new RandomLPR();
+		randomLPR1.setSeed(LPR_SEED);
 
-	private void generateLprDumps(int records) {
-		RandomLPR randomLPR = new RandomLPR();
-		randomLPR.setSeed(LPR_SEED);
-
-		File path = new File(FTP_PATH);
 		File file = new File(path, LPR_OUTPUT_FILE_NAME);
 		try {
 			FileWriter fileWriter = new FileWriter(file);
 
-			for (LPR lpr : randomLPR.randomLPRs(records)) {
+			for (LPR lpr : randomLPR1.randomLPRs(numberOfRecords)) {
 				CommaConcat concat = new CommaConcat(";");
 
 				if (lpr.getRelationType().definesDoctor()) {
@@ -90,5 +84,4 @@ public class GenerateTestRegisterDumps {
 			e.printStackTrace();
 		}
 	}
-
 }
