@@ -24,46 +24,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dk.nsi.sdm4.lpr.config;
+package dk.nsi.sdm4.lpr.dao.impl;
 
-import dk.nsi.sdm4.core.parser.Parser;
-import dk.nsi.sdm4.core.parser.ParserException;
-import dk.nsi.sdm4.lpr.dao.LPRWriteDAO;
-import dk.nsi.sdm4.lpr.dao.impl.LPRDAOImpl;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
+import dk.nsi.sdm4.lpr.common.exception.DAOException;
+import dk.nsi.sdm4.lpr.dao.LPRTestPurposeDAO;
+import dk.nsi.sdm4.lpr.relation.model.LPR;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.File;
+import java.util.List;
 
-@Configuration
-public class LprimporterApplicationConfig {
-	@Bean
-	public Parser parser() {
-		return new Parser() {
-			@Override
-			public void process(File dataSet) throws ParserException {
-				throw new UnsupportedOperationException("process");
-			}
+public class LPRTestPurposeDAOImpl extends LPRDAOImpl implements LPRTestPurposeDAO {
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 
-			@Override
-			public String getHome() {
-				return "lprimporter";
-			}
-		};
-	}
-
-	@Bean
-	public LPRWriteDAO writeDao() {
-		return new LPRDAOImpl();
-	}
-
-	@Bean
-	public TransactionTemplate templateForNewTransactions(PlatformTransactionManager transactionManager) {
-		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-		transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		return transactionTemplate;
+	@Override
+	public List<LPR> getAllLPRs() throws DAOException {
+		return jdbcTemplate.query("SELECT * FROM LPR", new LPRRowMapper());
 	}
 }
