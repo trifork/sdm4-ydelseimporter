@@ -56,6 +56,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
@@ -215,7 +216,6 @@ public class LPRFileHandlerTest {
 	    File directory = new File(filename).getParentFile();
 	    FileUtils.deleteDirectory(directory);
 	    assertFalse(directory.exists());
-	    //noinspection ResultOfMethodCallIgnored
-	    directory.mkdirs();
+	    assertTrue(directory.mkdirs());
     }
 }
