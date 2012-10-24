@@ -50,8 +50,8 @@ public class LPRTest {
 	    DateTimeZone zone = DateTimeZone.UTC;
 	    admittedInterval = GeneralInterval.closedInterval(
 			    new Interval(
-					    new DateTime(2011, 02, 15, 12, 0, 0, 0, zone),
-					    new DateTime(2011, 02, 27, 15, 0, 0, 0, zone)));
+					    new DateTime(2011, 2, 15, 12, 0, 0, 0, zone),
+					    new DateTime(2011, 2, 27, 15, 0, 0, 0, zone)));
 
 
 	    parentUnitLpr = LPR.newInstance(PATIENT_CPR, admittedInterval, REFERENCE, LPR.LprRelationType.PARENT_UNIT,
@@ -216,10 +216,10 @@ public class LPRTest {
 
     @Test
     public void testHashCode() {
-        assertEquals(-195737331, parentUnitLpr.hashCode());
-        assertEquals(-195737331, procedureUnitLpr.hashCode());
-        assertEquals(-195737331, dischargedLpr.hashCode());
-        assertEquals(1344911180, dusasLpr.hashCode());
+        assertEquals(1259882577, parentUnitLpr.hashCode());
+        assertEquals(1259882577, procedureUnitLpr.hashCode());
+        assertEquals(1259882577, dischargedLpr.hashCode());
+        assertEquals(-1494436208, dusasLpr.hashCode());
     }
 
     @Test
