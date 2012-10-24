@@ -28,6 +28,7 @@ package dk.nsi.sdm4.ydelse.relation.model;
 
 import dk.nsi.sdm4.ydelse.relation.model.LPR.LprRelationType;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,10 +36,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class LPRTest {
-
     private static final HashedCpr PATIENT_CPR = HashedCpr.buildFromUnhashedString("1806861234");
-    private static final GeneralInterval ADMITTED_INTERVAL = GeneralInterval.closedInterval(new Interval(new DateTime(
-            2011, 02, 15, 12, 0, 0, 0), new DateTime(2011, 02, 27, 15, 0, 0, 0)));
+    private GeneralInterval admittedInterval;
     private static final String HOSPITAL_ORG_ID = "1234";
     private static final String DOCTOR_ORG_ID = "654321";
 
@@ -48,13 +47,20 @@ public class LPRTest {
 
     @Before
     public void setup() {
-        parentUnitLpr = LPR.newInstance(PATIENT_CPR, ADMITTED_INTERVAL, REFERENCE, LPR.LprRelationType.PARENT_UNIT,
+	    DateTimeZone zone = DateTimeZone.UTC;
+	    admittedInterval = GeneralInterval.closedInterval(
+			    new Interval(
+					    new DateTime(2011, 02, 15, 12, 0, 0, 0, zone),
+					    new DateTime(2011, 02, 27, 15, 0, 0, 0, zone)));
+
+
+	    parentUnitLpr = LPR.newInstance(PATIENT_CPR, admittedInterval, REFERENCE, LPR.LprRelationType.PARENT_UNIT,
                 HOSPITAL_ORG_ID);
-        procedureUnitLpr = LPR.newInstance(PATIENT_CPR, ADMITTED_INTERVAL, REFERENCE, LprRelationType.PROCEDURE_UNIT,
+        procedureUnitLpr = LPR.newInstance(PATIENT_CPR, admittedInterval, REFERENCE, LprRelationType.PROCEDURE_UNIT,
                 HOSPITAL_ORG_ID);
-        dischargedLpr = LPR.newInstance(PATIENT_CPR, ADMITTED_INTERVAL, REFERENCE, LprRelationType.DISCHARGED_TO_UNIT,
+        dischargedLpr = LPR.newInstance(PATIENT_CPR, admittedInterval, REFERENCE, LprRelationType.DISCHARGED_TO_UNIT,
                 HOSPITAL_ORG_ID);
-        dusasLpr = LPR.newInstance(PATIENT_CPR, ADMITTED_INTERVAL, REFERENCE, LprRelationType.DUSAS, DOCTOR_ORG_ID);
+        dusasLpr = LPR.newInstance(PATIENT_CPR, admittedInterval, REFERENCE, LprRelationType.DUSAS, DOCTOR_ORG_ID);
     }
 
     @Test
@@ -154,7 +160,7 @@ public class LPRTest {
     public void testGetters() {
         assertEquals(PATIENT_CPR, parentUnitLpr.getPatientCpr());
 
-        assertEquals(ADMITTED_INTERVAL, parentUnitLpr.getAdmittedInterval());
+        assertEquals(admittedInterval, parentUnitLpr.getAdmittedInterval());
 
         assertEquals(REFERENCE, parentUnitLpr.getLprReference());
         assertEquals(REFERENCE, procedureUnitLpr.getLprReference());
@@ -243,22 +249,22 @@ public class LPRTest {
     @Test
     public void testToString() {
         assertEquals(
-                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000/2011-02-27T15:00:00.000,"
+                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000Z/2011-02-27T15:00:00.000Z,"
                         + "lprReference:" + REFERENCE + ",relationType:PARENT_UNIT,"
                         + "hospitalOrganisationIdentifier:1234,doctorOrganisationIdentifier:<null>]",
                 parentUnitLpr.toString());
         assertEquals(
-                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000/2011-02-27T15:00:00.000,"
+                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000Z/2011-02-27T15:00:00.000Z,"
                         + "lprReference:" + REFERENCE + ",relationType:PROCEDURE_UNIT,"
                         + "hospitalOrganisationIdentifier:1234,doctorOrganisationIdentifier:<null>]",
                 procedureUnitLpr.toString());
         assertEquals(
-                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000/2011-02-27T15:00:00.000,"
+                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000Z/2011-02-27T15:00:00.000Z,"
                         + "lprReference:" + REFERENCE + ",relationType:DISCHARGED_TO_UNIT,"
                         + "hospitalOrganisationIdentifier:1234,doctorOrganisationIdentifier:<null>]",
                 dischargedLpr.toString());
         assertEquals(
-                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000/2011-02-27T15:00:00.000,"
+                "LPR[patientCpr:EBCE374754BE6ABA40CD9F62DB0CDECFA3CC1F2C,admittedInterval:2011-02-15T12:00:00.000Z/2011-02-27T15:00:00.000Z,"
                         + "lprReference:" + REFERENCE + ",relationType:DUSAS,"
                         + "hospitalOrganisationIdentifier:<null>,doctorOrganisationIdentifier:654321]",
                 dusasLpr.toString());
