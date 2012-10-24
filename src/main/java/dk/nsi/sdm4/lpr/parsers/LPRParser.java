@@ -24,14 +24,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dk.nsi.sdm4.lpr.handlers;
+package dk.nsi.sdm4.lpr.parsers;
 
 import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.lpr.common.splunk.SplunkLogger;
 import dk.nsi.sdm4.lpr.dao.LPRWriteDAO;
-import dk.nsi.sdm4.lpr.parsers.LPRLineParser;
-import dk.nsi.sdm4.lpr.parsers.LprAction;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
@@ -39,8 +37,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class LPRFileHandler implements Parser {
-    private static final SplunkLogger log = new SplunkLogger(LPRFileHandler.class);
+public class LPRParser implements Parser {
+    private static final SplunkLogger log = new SplunkLogger(LPRParser.class);
 
 	@Autowired
 	LPRWriteDAO dao;

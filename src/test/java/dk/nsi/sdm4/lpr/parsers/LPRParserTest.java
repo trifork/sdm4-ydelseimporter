@@ -24,7 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dk.nsi.sdm4.lpr.handlers;
+package dk.nsi.sdm4.lpr.parsers;
 
 import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.lpr.common.exception.DAOException;
@@ -60,8 +60,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@ContextConfiguration(classes = {LPRFileHandlerTest.TestConfig.class, TestDbConfiguration.class})
-public class LPRFileHandlerTest {
+@ContextConfiguration(classes = {LPRParserTest.TestConfig.class, TestDbConfiguration.class})
+public class LPRParserTest {
 	@Rule
 	public TemporaryFolder tmpDir = new TemporaryFolder();
 
@@ -93,8 +93,8 @@ public class LPRFileHandlerTest {
 		}
 
 		@Bean
-		public LPRFileHandler parser() {
-			return new LPRFileHandler();
+		public LPRParser parser() {
+			return new LPRParser();
 		}
 
 		@Bean
@@ -122,16 +122,16 @@ public class LPRFileHandlerTest {
 
     @Test
     public void testDeletion() throws IOException, DAOException {
-        assertThatJobParsesFile("LPRFileHandlerTest-testInsertion.csv");
+        assertThatJobParsesFile("LPRParserTest-testInsertion.csv");
         assertEquals(1, getAllLprsAsSet().size());
 
-        assertThatJobParsesFile("LPRFileHandlerTest-testDeletion.csv");
+        assertThatJobParsesFile("LPRParserTest-testDeletion.csv");
         assertEquals(0, getAllLprsAsSet().size());
     }
 
     @Test
     public void testUpdate() throws IOException, DAOException {
-        assertThatJobParsesFile("LPRFileHandlerTest-testInsertion.csv");
+        assertThatJobParsesFile("LPRParserTest-testInsertion.csv");
 
         LPR expectedLpr = LPR.newInstance(HashedCpr.buildFromHashedString("0B0E20A894AC8C363EC84CDE7CD73C6FB1953046"),
                 GeneralInterval.openInterval(new DateTime(2011, 5, 18, 0, 0, 0, 0)),
@@ -142,7 +142,7 @@ public class LPRFileHandlerTest {
                                                                               // ...testInsertion.csv
         assertThatDatabaseContainsOnly(expectedLpr);
 
-        assertThatJobParsesFile("LPRFileHandlerTest-testUpdate.csv");
+        assertThatJobParsesFile("LPRParserTest-testUpdate.csv");
 
         GeneralInterval expectedAdmittedIntervalAfterUpdate = GeneralInterval.closedInterval(new Interval(new DateTime(
                 2011, 2, 9, 0, 0, 0, 0), new DateTime(2011, 2, 10, 0, 0, 0, 0))); // note
