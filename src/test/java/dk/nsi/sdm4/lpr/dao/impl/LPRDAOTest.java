@@ -38,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +48,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@ContextConfiguration(classes = {LPRDAOTest.TestConfig.class, LprimporterApplicationConfig.class, TestDbConfiguration.class})
+@ContextConfiguration(classes = {LprimporterApplicationConfig.class, TestDbConfiguration.class})
 public class LPRDAOTest {
 
     private static final String PATIENT_CPR_UNHASHED = "1806861234";
@@ -61,11 +60,6 @@ public class LPRDAOTest {
     private LPRWriteDAO dao;
 
     private static final String REFERENCE = "123456789012345678901234567890123456789012345678901234567890";
-
-	@Configuration
-	static class TestConfig {
-
-	}
 
 	@Before
     public void setup() {
