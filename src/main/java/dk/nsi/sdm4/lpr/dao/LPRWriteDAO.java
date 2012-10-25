@@ -30,7 +30,6 @@ import dk.nsi.sdm4.lpr.common.exception.DAOException;
 import dk.nsi.sdm4.lpr.relation.model.LPR;
 
 public interface LPRWriteDAO extends LPRReadDAO {
-
 	/**
 	 * Inserts the {@link LPR} in the database. The patient cpr number is
 	 * assumed to be unhashed. A hashed version will be inserted in the

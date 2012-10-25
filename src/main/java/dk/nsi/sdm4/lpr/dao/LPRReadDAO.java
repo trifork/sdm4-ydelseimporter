@@ -27,12 +27,7 @@
 package dk.nsi.sdm4.lpr.dao;
 
 import dk.nsi.sdm4.lpr.common.exception.DAOException;
-import dk.nsi.sdm4.lpr.relation.model.DoctorOrganisationIdentifier;
-import dk.nsi.sdm4.lpr.relation.model.HashedCpr;
-import dk.nsi.sdm4.lpr.relation.model.HospitalOrganisationIdentifier;
 import dk.nsi.sdm4.lpr.relation.model.LPR;
-
-import java.util.List;
 
 public interface LPRReadDAO {
 
@@ -46,39 +41,4 @@ public interface LPRReadDAO {
 	 *             if something goes wrong in the process
 	 */
 	public LPR getUsingPrimaryKey(long primaryKey) throws DAOException;
-
-	/**
-	 * Retrieves a list of {@link LPR}s given various properties. Does not
-	 * discriminate on the basis of time intervals. Hashes the patient cpr
-	 * number before performing the query.
-	 * 
-	 * @param patientCpr
-	 *            The cpr number of the patient
-	 * @param hospitalOrganisationIdentifier
-	 *            The doctor organisation identifier as "sks"
-	 * @return List of {@link LPR}s matching the query
-	 * @throws DAOException
-	 *             if something goes wrong in the process
-	 */
-	public List<LPR> queryHospitalOrganisationIdentifier(HashedCpr patientCpr,
-	                                                     HospitalOrganisationIdentifier hospitalOrganisationIdentifier) throws DAOException;
-
-	/**
-	 * Retrieves a list of {@link LPR}s given various properties. Does not
-	 * discriminate on the basis of time intervals. Hashes the patient cpr
-	 * number before performing the query.
-	 * 
-	 * @param patientCpr
-	 *            The cpr number of the patient
-	 * @param doctorOrganisationIdentifier
-	 *            The doctor organisation identifier as "ydernummer"
-	 * @return List of {@link LPR}s matching the query
-	 * @throws DAOException
-	 *             if something goes wrong in the process
-	 */
-	public List<LPR> queryDoctorOrganisationIdentifier(HashedCpr patientCpr,
-	                                                   DoctorOrganisationIdentifier doctorOrganisationIdentifier) throws DAOException;
-
-    long insertOrUpdate(LPR lpr) throws DAOException;
-
 }

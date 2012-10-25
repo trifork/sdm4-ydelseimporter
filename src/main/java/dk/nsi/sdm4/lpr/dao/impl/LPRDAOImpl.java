@@ -29,26 +29,17 @@ package dk.nsi.sdm4.lpr.dao.impl;
 import dk.nsi.sdm4.lpr.common.exception.DAOException;
 import dk.nsi.sdm4.lpr.common.splunk.SplunkLogger;
 import dk.nsi.sdm4.lpr.dao.LPRWriteDAO;
-import dk.nsi.sdm4.lpr.relation.model.DoctorOrganisationIdentifier;
-import dk.nsi.sdm4.lpr.relation.model.HashedCpr;
-import dk.nsi.sdm4.lpr.relation.model.HospitalOrganisationIdentifier;
 import dk.nsi.sdm4.lpr.relation.model.LPR;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import javax.annotation.PostConstruct;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LPRDAOImpl implements LPRWriteDAO {
 	private static final SplunkLogger log = new SplunkLogger(LPRDAOImpl.class);
@@ -147,44 +138,6 @@ public class LPRDAOImpl implements LPRWriteDAO {
         }
     }
 
-    @Override
-    public List<LPR> queryHospitalOrganisationIdentifier(HashedCpr patientCpr,
-            HospitalOrganisationIdentifier hospitalOrganisationIdentifier) throws DAOException {
-        long startQueryTimestamp, endQueryTimestamp;
-        
-	    List<LPR> resultLPR;
-	    try {
-	        String croppedHospitalOrganisationIdentifier = hospitalOrganisationIdentifier.topCode() + "%";
-
-	        startQueryTimestamp = System.currentTimeMillis();
-	        resultLPR = jdbcTemplate.query("SELECT * FROM LPR WHERE patientCpr=? AND organisationIdentifier LIKE ?", new LPRHospitalResultsetExctractor(), patientCpr.getHashedCpr(), croppedHospitalOrganisationIdentifier);
-	        endQueryTimestamp = System.currentTimeMillis();
-        } catch (RuntimeException e) {
-            throw new DAOException("Unable to query database.", e);
-        }
-
-        log.debug("LPR query done", "patientCpr", patientCpr.getHashedCpr(), "organisationIdentifier",
-                hospitalOrganisationIdentifier.toString(), "numberOfFoundLPR", Integer.toString(resultLPR.size()), "durationOfQuery", Long.toString(endQueryTimestamp - startQueryTimestamp));
-
-        return resultLPR;
-    }
-
-    @Override
-    public List<LPR> queryDoctorOrganisationIdentifier(HashedCpr patientCpr,
-            DoctorOrganisationIdentifier doctorOrganisationIdentifier) throws DAOException {
-	    List<LPR> resultLPR;
-	    try {
-		    resultLPR = jdbcTemplate.query("SELECT * FROM LPR WHERE patientCpr=? AND organisationIdentifier=?", new LPRDoctorResultsetExctractor(), patientCpr.getHashedCpr(), doctorOrganisationIdentifier.toString());
-        } catch (RuntimeException e) {
-            throw new DAOException("Unable to query database.", e);
-        }
-
-        log.debug("LPR query done", "patientCpr", patientCpr.getHashedCpr(), "organisationIdentifier",
-                doctorOrganisationIdentifier.toString(), "numberOfFoundLPR", Integer.toString(resultLPR.size()));
-
-	    return resultLPR;
-    }
-
 	private class LprSqlParamsSource extends MapSqlParameterSource {
 		public LprSqlParamsSource(LPR lpr) {
 			super();
@@ -212,39 +165,4 @@ public class LPRDAOImpl implements LPRWriteDAO {
 			super.addValue("lprReference", lpr.getLprReference());
 		}
 	}
-
-	private class LPRHospitalResultsetExctractor implements ResultSetExtractor<List<LPR>> {
-		private RowMapper<LPR> rowMapper = new LPRRowMapper();
-
-		@Override
-		public List<LPR> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-			List<LPR> resultLPR = new ArrayList<LPR>();
-			while (resultSet.next()) {
-				LPR lpr = rowMapper.mapRow(resultSet, -1);
-				if (lpr.getRelationType().definesHospital()) {
-					resultLPR.add(lpr);
-				}
-			}
-
-			return resultLPR;
-		}
-	}
-
-	private class LPRDoctorResultsetExctractor implements ResultSetExtractor<List<LPR>> {
-		private RowMapper<LPR> rowMapper = new LPRRowMapper();
-
-		@Override
-		public List<LPR> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-			List<LPR> resultLPR = new ArrayList<LPR>();
-			while (resultSet.next()) {
-				LPR lpr = rowMapper.mapRow(resultSet, -1);
-				if (lpr.getRelationType().definesDoctor()) {
-					resultLPR.add(lpr);
-				}
-			}
-
-			return resultLPR;
-		}
-	}
-
 }
