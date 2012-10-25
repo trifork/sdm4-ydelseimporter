@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CprUtil {
-
 	private static final String CPR_REG_EX = "((((0[1-9]|1[0-9]|2[0-9]|3[0-1])(01|03|05|07|08|10|12))|"
 			+ "((0[1-9]|1[0-9]|2[0-9]|30)(04|06|09|11))|((0[1-9]|1[0-9]|2[0-9])(02)))[0-9]{6})|0000000000";
 
@@ -39,8 +38,5 @@ public class CprUtil {
 	public static boolean validateCpr(String cpr) {
 		Matcher matcher = CPR_PATTERN.matcher(cpr);
 		return matcher.matches();
-	}
-
-	private CprUtil() {
 	}
 }
