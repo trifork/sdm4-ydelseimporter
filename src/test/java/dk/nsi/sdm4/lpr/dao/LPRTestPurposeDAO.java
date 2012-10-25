@@ -32,6 +32,6 @@ import dk.nsi.sdm4.lpr.relation.model.LPR;
 import java.util.List;
 
 public interface LPRTestPurposeDAO extends LPRWriteDAO {
+	public void purge() throws DAOException;
 	public List<LPR> getAllLPRs() throws DAOException;
-
 }

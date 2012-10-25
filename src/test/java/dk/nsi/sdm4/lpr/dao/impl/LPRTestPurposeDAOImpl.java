@@ -39,6 +39,11 @@ public class LPRTestPurposeDAOImpl extends LPRDAOImpl implements LPRTestPurposeD
 	JdbcTemplate jdbcTemplate;
 
 	@Override
+	public void purge() throws DAOException {
+		jdbcTemplate.update("DELETE FROM LPR");
+	}
+
+	@Override
 	public List<LPR> getAllLPRs() throws DAOException {
 		return jdbcTemplate.query("SELECT * FROM LPR", new LPRRowMapper());
 	}

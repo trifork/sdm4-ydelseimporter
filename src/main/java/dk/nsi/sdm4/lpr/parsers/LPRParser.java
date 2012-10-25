@@ -31,17 +31,33 @@ import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.lpr.common.splunk.SplunkLogger;
 import dk.nsi.sdm4.lpr.dao.LPRWriteDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LPRParser implements Parser {
     private static final SplunkLogger log = new SplunkLogger(LPRParser.class);
 
 	@Autowired
 	LPRWriteDAO dao;
+
+	@Autowired
+	TransactionTemplate transactionTemplate;
+
+	@Value("${spooler.lprimporter.batchsize}")
+	protected int batchSize;
+
+	private int progressBatchSize = 10000;
+
+	List<LprAction> batch = new ArrayList<LprAction>(batchSize);
 
 	/**
 	 * @see Parser#process(java.io.File)
@@ -56,15 +72,25 @@ public class LPRParser implements Parser {
             FileReader reader = new FileReader(file);
             bf = new BufferedReader(reader);
 
-            while ((line = bf.readLine()) != null) {
-                if (!line.startsWith("#")) {
-                    LprAction action = LPRLineParser.parseLine(line);
-                    action.execute(dao);
+	        long counter = 0;
+	        while ((line = bf.readLine()) != null) {
+	            if (!line.startsWith("#")) {
+	                LprAction action = LPRLineParser.parseLine(line);
+	                batch.add(action);
+	                counter++;
+	                if (counter % progressBatchSize == 0) {
+		                log.info("Progress: " + counter);
+	                }
+	                if (batch.size() == batchSize) {
+		                commitBatch();
+	                }
                 }
             }
+
+	        commitBatch(); // commit den rest der kan være fra sidste gennemløb
         } catch (Exception e) {
             // This is potentially a security issue as the raw data is exposed (but it is hashed)
-            throw new ParserException(e.getMessage() + " in line \"" + line +  "\"", e);
+            throw new ParserException(e.getMessage() + " in line \"" + line +  "\" of file " + file.getAbsolutePath(), e);
         } finally {
             closeQuietly(bf);
         }
@@ -101,5 +127,21 @@ public class LPRParser implements Parser {
 				log.error(e);
 			}
 		}
+	}
+
+	private void commitBatch() {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				if (batch.size() > 0) {
+					log.info("Committing batch of size " + batch.size());
+					for (LprAction action : batch) {
+						action.execute(dao);
+					}
+					batch.clear();
+				}
+				return null; // kun for at gøre TransactionCallback-interfacet glad, ingen bruger en returværdi til noget
+			}
+		});
 	}
 }

@@ -28,6 +28,7 @@ package dk.nsi.sdm4.lpr.parsers;
 
 import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.lpr.common.exception.DAOException;
+import dk.nsi.sdm4.lpr.config.LprimporterApplicationConfig;
 import dk.nsi.sdm4.lpr.dao.LPRTestPurposeDAO;
 import dk.nsi.sdm4.lpr.dao.impl.LPRTestPurposeDAOImpl;
 import dk.nsi.sdm4.lpr.relation.model.GeneralInterval;
@@ -39,6 +40,7 @@ import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -48,7 +50,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,8 +60,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
-@ContextConfiguration(classes = {LPRParserTest.TestConfig.class, TestDbConfiguration.class})
+@ContextConfiguration(classes = {LPRParserTest.TestConfig.class, LprimporterApplicationConfig.class, TestDbConfiguration.class})
 public class LPRParserTest {
 	@Rule
 	public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -101,6 +101,12 @@ public class LPRParserTest {
 		public LPRTestPurposeDAO dao() {
 			return new LPRTestPurposeDAOImpl();
 		}
+	}
+
+	@Before
+	public void clearDb() {
+		// LPRParser committer sine egen transaktioner med batches af actions, så vi kan ikke bare bruge @Transactional på testen
+		testDao.purge();
 	}
 
 	@Test
