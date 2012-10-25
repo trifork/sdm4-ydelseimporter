@@ -134,7 +134,7 @@ public class LPRParser implements Parser {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
 				if (batch.size() > 0) {
-					log.info("Committing batch of size " + batch.size());
+					log.info("Committing batch", "batchsize", ""+batch.size());
 					for (LprAction action : batch) {
 						action.execute(dao);
 					}
