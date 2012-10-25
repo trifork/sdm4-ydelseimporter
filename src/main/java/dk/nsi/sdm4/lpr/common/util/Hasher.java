@@ -37,9 +37,6 @@ public final class Hasher {
 
 	private static final String SHA_1 = "SHA-1";
 
-	private Hasher() {
-	}
-
 	public static String hash(String string) throws HashException {
 		try {
             MessageDigest digest = MessageDigest.getInstance(SHA_1);
