@@ -9,13 +9,13 @@
 
 	<artifactId>ydelseimporter</artifactId>
 	<packaging>war</packaging>
-	<version>4.2-SNAPSHOT</version>
+	<version>4.2</version>
 
     <scm>
         <url>scm:git:git@github.com:trifork/sdm4-ydelseimporter</url>
         <connection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</connection>
         <developerConnection>scm:git:git@github.com:trifork/sdm4-ydelseimporter.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>ydelseimporter-4.2</tag>
     </scm>
     <issueManagement>
         <system>JIRA</system>
