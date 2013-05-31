@@ -30,6 +30,8 @@ import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.ydelse.common.splunk.SplunkLogger;
 import dk.nsi.sdm4.ydelse.dao.SSRWriteDAO;
+import dk.sdsd.nsp.slalog.api.SLALogItem;
+import dk.sdsd.nsp.slalog.api.SLALogger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
@@ -51,23 +53,37 @@ public class YdelseParser implements Parser {
 	@Autowired
 	YdelseInserter inserter;
 
+    @Autowired
+    private SLALogger slaLogger;
+
 	/**
-	 * @see Parser#process(java.io.File)
+	 * @see Parser#process(java.io.File, String)
 	 */
 	@Override
-    public void process(File dataset) throws ParserException {
+    public void process(File dataset, String identifier) throws ParserException {
 		File file = findSingleFileOrComplain(dataset);
+        SLALogItem slaLogItem = slaLogger.createLogItem(getHome()+".process", "SDM4."+getHome()+".process");
+        slaLogItem.setMessageId(identifier);
+        slaLogItem.addCallParameter(Parser.SLA_INPUT_NAME, dataset.getAbsolutePath());
 
 		countNumberOfLines(file);
 
-		Future<Void> insertionFuture = inserter.readFileAndPerformDatabaseOperations(file);
+        long processed = 0;
+		Future<Long> insertionFuture = inserter.readFileAndPerformDatabaseOperations(file);
 		try {
-			insertionFuture.get();
+			processed = insertionFuture.get();
 		} catch (InterruptedException e) {
+            slaLogItem.setCallResultError("VitaminParser failed - Cause: " + e.getMessage());
+            slaLogItem.store();
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
+            slaLogItem.setCallResultError("VitaminParser failed - Cause: " + e.getMessage());
+            slaLogItem.store();
 			throw new ParserException("Unable to perform insertions for " + file.getAbsolutePath(), e);
 		}
+        slaLogItem.addCallParameter(Parser.SLA_RECORDS_PROCESSED_MAME, ""+processed);
+        slaLogItem.setCallResultOk();
+        slaLogItem.store();
 	}
 
 	private long countNumberOfLines(File file) {

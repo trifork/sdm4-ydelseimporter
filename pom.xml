@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>dk.nsi.stamdata4</groupId>
 		<artifactId>sdm-parent</artifactId>
-		<version>4.5</version>
+		<version>4.7</version>
 	</parent>
 
 	<artifactId>ydelseimporter</artifactId>
@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>dk.nsi.stamdata4</groupId>
 			<artifactId>sdm-core</artifactId>
-			<version>4.2</version>
+			<version>4.10</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>dk.nsi.stamdata4</groupId>
             <artifactId>testutils</artifactId>
-            <version>4.1</version>
+            <version>4.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

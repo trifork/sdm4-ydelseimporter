@@ -119,13 +119,13 @@ public class YdelseparserTest {
 
 	@Test(expected = ParserException.class)
 	public void complainsIfDatasetIsNull() throws IOException {
-		parser.process(null);
+		parser.process(null, "");
 	}
 
 	@Test
 	public void complainsAboutEmptyDataset() throws IOException {
 		try {
-			parser.process(tmpDir.getRoot());
+			parser.process(tmpDir.getRoot(), "");
 			fail("Expected ParserException, but none came");
 		} catch (ParserException e) {
 			assertThat(e.getMessage(), containsString("empty"));
@@ -138,7 +138,7 @@ public class YdelseparserTest {
 		tmpDir.newFile();
 		tmpDir.newFile();
 		try {
-			parser.process(tmpDir.getRoot());
+			parser.process(tmpDir.getRoot(), "");
 			fail("Expected ParserException, but none came");
 		} catch (ParserException e) {
 			assertThat(e.getMessage(), containsString("expected 1"));
@@ -154,7 +154,7 @@ public class YdelseparserTest {
 	    int numberOfRecords = 200;
 	    Set<SSR> expected = new HashSet<SSR>(generator.generateSsrDumps(datasetDir, numberOfRecords));
 
-	    parser.process(datasetDir);
+	    parser.process(datasetDir, "");
 
 	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
@@ -168,7 +168,7 @@ public class YdelseparserTest {
 		File datasetDir = tmpDir.newFolder();
 		generator.generateSingleDeletion(datasetDir, "DoesNotExist            ");
 
-		parser.process(datasetDir);
+		parser.process(datasetDir, "");
 
 		List<SSR> seen = testDao.getAllSSRs();
 
@@ -181,7 +181,7 @@ public class YdelseparserTest {
 		File datasetDir = tmpDir.newFolder();
 		generator.generateSingleInsertionFollowedByDeletion(datasetDir, "JustAnOrdinaryReference ");
 
-		parser.process(datasetDir);
+		parser.process(datasetDir, "");
 
 		List<SSR> seen = testDao.getAllSSRs();
 
@@ -197,7 +197,7 @@ public class YdelseparserTest {
 		File datasetDir = tmpDir.newFolder();
 		generator.generateSingleInsertionFollowedByDeletion(datasetDir, externalReference);
 
-		parser.process(datasetDir);
+		parser.process(datasetDir, "");
 
 		List<SSR> seen = testDao.getAllSSRs();
 
@@ -208,7 +208,7 @@ public class YdelseparserTest {
     public void testParsingOfFileWithUpdate() throws IOException, DAOException {
 	    File datasetDir = makeDatadirWithResource("YdelseparserTest-TestFile.csv");
 
-	    parser.process(datasetDir);
+	    parser.process(datasetDir, "");
 
 	    Set<SSR> seenAsSet = new HashSet<SSR>(testDao.getAllSSRs());
 
@@ -238,7 +238,7 @@ public class YdelseparserTest {
     public void testParsingOfFileFromCSC() throws DAOException, IOException {
 	    File datasetDir = makeDatadirWithResource("Ydelsesudtraek.csv");
 
-	    parser.process(datasetDir);
+	    parser.process(datasetDir, "");
 
 	    List<SSR> seen = testDao.getAllSSRs();
 

@@ -68,12 +68,12 @@ public class YdelseInserter {
 	 * Læser den angivne fil, parser hver linie og udfører de angivne operationer
 	 * @return Future, der kan bruges til at holde styr på, om processen er færdig
 	 */
-	public Future<Void> readFileAndPerformDatabaseOperations(File file) {
+	public Future<Long> readFileAndPerformDatabaseOperations(File file) {
 		BufferedReader bf = null;
+        long counter = 0;
 		try {
 			bf = new BufferedReader(new FileReader(file));
 
-			long counter = 0;
 			String line;
 			while ((line = bf.readLine()) != null) {
 				SsrAction ssrAction = SSRLineParser.parseLine(line);
@@ -94,7 +94,7 @@ public class YdelseInserter {
 			IOUtils.closeQuietly(bf);
 		}
 
-		return new AsyncResult<Void>(null); // bruges bare til at signalere completion
+		return new AsyncResult<Long>(counter); // bruges bare til at signalere completion
 	}
 
 	private void commitBatch() {
